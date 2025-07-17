@@ -23,10 +23,11 @@ public class UserV1Controller implements UserV1Spec{
         }
 
         return ApiResponse.success(
+                // Mock API
                 new UserV1Dto.UserResponse(
-                        1L,
                         "sangil8585",
-                        UserV1Dto.UserResponse.GenderResponse.MALE,
+                        "변상일",
+                        UserV1Dto.GenderResponse.MALE,
                         "1993-02-24",
                         "sangil8585@naver.com"
                 )

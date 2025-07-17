@@ -1,11 +1,11 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {
     public record SignUpRequest(
+            @NotNull
+            String userId,
             @NotNull
             String name,
             @NotNull
@@ -15,7 +15,6 @@ public class UserV1Dto {
             @NotNull
             String email
     ) {
-
         enum GenderRequest {
             MALE,
             FEMALE
@@ -23,15 +22,16 @@ public class UserV1Dto {
     }
 
     public record UserResponse(
-            Long userId,
-            String loginId,
+            String userId,
+            String name,
             GenderResponse gender,
             String birthDate,
             String email
     ) {
-        enum GenderResponse {
-            MALE,
-            FEMALE
-        }
+    }
+
+    enum GenderResponse {
+        MALE,
+        FEMALE
     }
 }
