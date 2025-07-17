@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api.user;
 
 import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserEntity;
+import com.loopers.domain.user.UserInfo;
 import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {
@@ -31,7 +33,15 @@ public class UserV1Dto {
             String birthDate,
             String email
     ) {
-
+        public static UserV1Dto.UserResponse from(UserInfo info) {
+            return new UserV1Dto.UserResponse(
+                    info.id(),
+                    info.userId(),
+                    info.gender().name(),
+                    info.birthDate(),
+                    info.email()
+            );
+        }
     }
 
 }

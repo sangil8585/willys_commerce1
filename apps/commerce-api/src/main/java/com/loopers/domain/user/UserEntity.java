@@ -3,6 +3,8 @@ package com.loopers.domain.user;
 import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -19,6 +21,8 @@ public class UserEntity extends BaseEntity {
     private Gender gender;
     private String birth;
     private String email;
+    @Embedded
+    private UserPointVO userPointVO = new UserPointVO();
 
     public static UserEntity of(UserCommand.Create command){
         return new UserEntity(command.userId(), command.gender(), command.birthDate(), command.email());
@@ -55,6 +59,11 @@ public class UserEntity extends BaseEntity {
 
     public static UserEntity from(UserCommand.Create command) {
         return new UserEntity(command.userId(), command.gender(), command.birthDate(), command.email());
+    }
+
+    public Long charge(Long amount) {
+        this.userPointVO = userPointVO.charge(amount);
+        return this.userPointVO.getAmount();
     }
 
     public enum Gender {

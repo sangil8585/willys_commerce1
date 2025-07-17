@@ -14,6 +14,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.util.MultiValueMapAdapter;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,32 +102,40 @@ public class UserV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            UserEntity expected = UserEntity.of(createCommand);
-            UserEntity saveUser = userRepository.save(expected);
+            var testUser = userService.signUp(createCommand);
+            var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of(testUser.userId())));
 
             // when
-            UserInfo result = userService.findByUserId("sangil8585");
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+
 
             // then
-            assertNotNull(result);
-            assertNotNull(result.id());
-            assertEquals(expected.getUserId(), result.userId());
-            assertEquals(expected.getGender(), result.gender());
-            assertEquals(expected.getBirth(), result.birthDate());
-            assertEquals(expected.getEmail(), result.email());
-
+            System.out.println("response status code = " + response.getStatusCode());
+            assertTrue(response.getStatusCode().is2xxSuccessful());
+            assertThat(response.getBody().data().id()).isNotNull();
+            assertThat(response.getBody().data().userId()).isEqualTo(testUser.userId());
+            assertThat(response.getBody().data().gender()).isEqualTo(testUser.gender());
+            assertThat(response.getBody().data().birthDate()).isEqualTo(testUser.birthDate());
+            assertThat(response.getBody().data().email()).isEqualTo(testUser.email());
         }
 
         @DisplayName("존재하지 않는 ID 로 조회할 경우, `404 Not Found` 응답을 반환한다.")
         @Test
         void 존재하지않는_ID로_로그인시_404_에러_발생() {
             // given
+            var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of("nonexistent")));
 
             // when
-            UserInfo result = userService.findByUserId("sangil8585");
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+
 
             // then
-            assertNull(result);
+            assertTrue(response.getStatusCode().is4xxClientError());
+
         }
     }
 }
