@@ -29,17 +29,17 @@ public class UserTest {
     })
     void ID가_형식이_안맞으면_생성실패(String userId) {
         // arrange
-        final String name = "변상일";
-        final String email = "asdf@gmail.com";
+        final UserEntity.Gender gender = UserEntity.Gender.from("MALE");
         final String birth = "1999-12-31";
+        final String email = "asdf@gmail.com";
 
         // act
         final CoreException exception = assertThrows(CoreException.class, () ->{
             new UserEntity(
                     userId,
-                    name,
-                    email,
-                    birth
+                    gender,
+                    birth,
+                    email
             );
         });
 
@@ -52,17 +52,17 @@ public class UserTest {
     void 이메일이_형식에_안맞으면_생성실패() {
         // arrange
         final String userId = "sangil44";
-        final String name = "변상일";
-        final String email = "asdf@gmail";
+        final UserEntity.Gender gender = UserEntity.Gender.from("MALE");
         final String birth = "1999-12-31";
+        final String email = "asdf@gmail";
 
         // act
         final CoreException exception = assertThrows(CoreException.class, () ->{
             new UserEntity(
                     userId,
-                    name,
-                    email,
-                    birth
+                    gender,
+                    birth,
+                    email
             );
         });
 
@@ -75,17 +75,17 @@ public class UserTest {
     void 생년월일이_형식에_안맞으면_생성실패() {
         // arrange
         final String userId = "sangil44";
-        final String name = "변상일";
-        final String email = "asdf@gmail.com";
+        final UserEntity.Gender gender = UserEntity.Gender.from("MALE");
         final String birth = "1993.02.24";
+        final String email = "asdf@gmail.com";
 
         // act
         final CoreException exception = assertThrows(CoreException.class, () ->{
             new UserEntity(
                     userId,
-                    name,
-                    email,
-                    birth
+                    gender,
+                    birth,
+                    email
             );
         });
 
