@@ -17,7 +17,7 @@ public class UserV1Controller implements UserV1Spec{
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/users")
     @Override
     public ApiResponse<UserV1Dto.UserResponse> signUp(
             @RequestBody UserV1Dto.SignUpRequest signUpRequest
@@ -29,16 +29,7 @@ public class UserV1Controller implements UserV1Spec{
         UserCommand.Create command = signUpRequest.toCommand();
         UserInfo userInfo = userService.signUp(command);
 
-        return ApiResponse.success(
-                // Mock API
-                new UserV1Dto.UserResponse(
-                        1L,
-                        "sangil8585",
-                        "MALE",
-                        "1993-02-24",
-                        "sangil8585@naver.com"
-                )
-        );
+        return ApiResponse.success(UserV1Dto.UserResponse.from(userInfo));
     }
 
     @GetMapping("/me")
