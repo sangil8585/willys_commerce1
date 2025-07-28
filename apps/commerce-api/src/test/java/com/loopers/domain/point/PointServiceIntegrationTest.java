@@ -1,9 +1,11 @@
-package com.loopers.domain.user;
+package com.loopers.domain.point;
 
 import com.loopers.application.point.PointFacade;
 import com.loopers.application.point.PointInfo;
 import com.loopers.application.user.UserFacade;
 import com.loopers.application.user.UserInfo;
+import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
@@ -98,4 +100,4 @@ public class PointServiceIntegrationTest {
             assertThat(coreException.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
-}
+} 
