@@ -9,13 +9,13 @@ public record UserInfo(
         String birthDate,
         String email
 ) {
-    public static UserInfo from(com.loopers.domain.user.UserInfo domainUserInfo) {
+    public static UserInfo from(UserEntity userEntity) {
         return new UserInfo(
-                domainUserInfo.id(),
-                domainUserInfo.userId(),
-                domainUserInfo.gender(),
-                domainUserInfo.birthDate(),
-                domainUserInfo.email()
+                userEntity.getId(),
+                userEntity.getUserId(),
+                userEntity.getGender(),
+                userEntity.getBirth(),
+                userEntity.getEmail()
         );
     }
 } 
