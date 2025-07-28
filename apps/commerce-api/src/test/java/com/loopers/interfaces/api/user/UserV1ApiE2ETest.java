@@ -1,5 +1,7 @@
 package com.loopers.interfaces.api.user;
 
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserInfo;
 import com.loopers.domain.user.*;
 import com.loopers.interfaces.api.ApiResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +34,7 @@ public class UserV1ApiE2ETest {
     @Autowired
     private TestRestTemplate testRestTemplate;
     @Autowired
-    private UserService userService;
+    private UserFacade userFacade;
 
     @DisplayName("회원 가입")
     @Nested
@@ -103,7 +105,7 @@ public class UserV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            var testUser = userService.signUp(createCommand);
+            var testUser = userFacade.signUp(createCommand);
             var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of(testUser.userId())));
 
             // when

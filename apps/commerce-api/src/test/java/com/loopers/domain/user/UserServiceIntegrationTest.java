@@ -1,5 +1,7 @@
 package com.loopers.domain.user;
 
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserInfo;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
@@ -22,7 +24,7 @@ public class UserServiceIntegrationTest {
     @MockitoSpyBean
     private UserRepository userRepository;
     @Autowired
-    private UserService userService;
+    private UserFacade userFacade;
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
@@ -50,7 +52,7 @@ public class UserServiceIntegrationTest {
             );
 
             // when
-            UserInfo result = userService.signUp(createCommand);
+            UserInfo result = userFacade.signUp(createCommand);
 
             // then
             verify(userRepository).save(any(UserEntity.class));
@@ -69,12 +71,12 @@ public class UserServiceIntegrationTest {
                     "asdfas@naver.com"
             );
 
-            userService.signUp(createCommand);
+            userFacade.signUp(createCommand);
 
             // when
             // assertThrows 자체가 exception을 반환해준다
             CoreException coreException = assertThrows(CoreException.class, () ->
-                    userService.signUp(createCommand));
+                    userFacade.signUp(createCommand));
 
             // then
             assertThat(coreException.getErrorType()).isEqualTo(ErrorType.CONFLICT);
@@ -98,10 +100,10 @@ public class UserServiceIntegrationTest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            userService.signUp(createCommand);
+            userFacade.signUp(createCommand);
 
             // when
-            UserInfo result = userService.findByUserId("sangil8585");
+            UserInfo result = userFacade.findByUserId("sangil8585");
 
             // then
             assertEquals(createCommand.userId(), result.userId());
@@ -117,7 +119,7 @@ public class UserServiceIntegrationTest {
             String nonExist = "nonExist";
 
             // when
-            UserInfo result = userService.findByUserId(nonExist);
+            UserInfo result = userFacade.findByUserId(nonExist);
 
             // then
             assertNull(result);
