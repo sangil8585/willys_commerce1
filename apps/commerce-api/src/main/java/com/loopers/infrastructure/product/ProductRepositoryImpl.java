@@ -1,0 +1,27 @@
+package com.loopers.infrastructure.product;
+
+import com.loopers.domain.product.ProductCriteria;
+import com.loopers.domain.product.ProductEntity;
+import com.loopers.domain.product.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class ProductRepositoryImpl implements ProductRepository {
+
+    private final ProductJpaRepository productJpaRepository;
+
+    @Override
+    public ProductEntity save(ProductEntity product) {
+        return productJpaRepository.save(product);
+    }
+
+    @Override
+    public Page<ProductEntity> find(ProductCriteria criteria, Pageable pageable) {
+        return productJpaRepository.findAll(criteria, pageable);
+    }
+
+}
