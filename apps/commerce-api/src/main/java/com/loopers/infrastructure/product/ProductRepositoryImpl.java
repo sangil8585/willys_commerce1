@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
@@ -24,4 +26,13 @@ public class ProductRepositoryImpl implements ProductRepository {
         return productJpaRepository.findAll(criteria, pageable);
     }
 
+    @Override
+    public boolean existsById(Long productId) {
+        return productJpaRepository.existsById(productId);
+    }
+
+    @Override
+    public Optional<ProductEntity> findById(Long productId) {
+        return productJpaRepository.findById(productId);
+    }
 }

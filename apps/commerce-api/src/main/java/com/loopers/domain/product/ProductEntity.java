@@ -50,4 +50,13 @@ public class ProductEntity extends BaseEntity {
         this.likes = 0L;
     }
 
+    public void incrementLikes() {
+        this.likes = (this.likes == null) ? 1L : this.likes + 1L;
+    }
+
+    public void decrementLikes() {
+        if (this.likes != null && this.likes > 0) {
+            this.likes = this.likes - 1L;
+        }
+    }       
 }

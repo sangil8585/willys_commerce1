@@ -1,9 +1,14 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.brand.BrandService;
+import com.loopers.domain.product.ProductCommand;
+import com.loopers.domain.product.ProductService;
+import com.loopers.domain.user.UserCommand;
 import com.loopers.domain.user.UserEntity;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,10 +28,13 @@ class LikeServiceIntegrationTest {
     private LikeService likeService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private ProductRepository productRepository;
+    private BrandService brandService;
+
+    @Autowired
+    private ProductService productService;
 
     private UserEntity testUser;
     private ProductEntity testProduct;
@@ -34,12 +42,15 @@ class LikeServiceIntegrationTest {
     @BeforeEach
     void setUp() {
         // 테스트용 유저 생성
-        testUser = new UserEntity("testuser", UserEntity.Gender.MALE, "1990-01-01", "test@example.com");
-        testUser = userRepository.save(testUser);
+        var testUserCommand = UserCommand.Create.of("testUser", "MALE", "2000-01-01", "sangil8585@naver.com");
+        testUser = userService.signUp(testUserCommand);
+
+        // 테스트용 브랜드 생성
+        var testBrand = brandService.create("나이키").getId();
 
         // 테스트용 상품 생성
-        testProduct = new ProductEntity("Test Product", 1L, 10000L, 100L, 0L);
-        testProduct = productRepository.save(testProduct);
+        var testProductCommand = ProductCommand.Create.of("티셔츠", testBrand, 1000L, 10L, 2L);
+        testProduct = productService.createProduct(testProductCommand);
     }
 
     @Test
@@ -88,5 +99,63 @@ class LikeServiceIntegrationTest {
         assertThat(firstLike.getId()).isEqualTo(secondLike.getId());
         assertThat(secondLike.getId()).isEqualTo(thirdLike.getId());
         assertThat(likeService.existsByUserIdAndProductId(userId, productId)).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품에 좋아요를 누르면 실패한다")
+    void shouldFailWhenProductDoesNotExist() {
+        // given
+        Long userId = testUser.getId();
+        Long nonExistentProductId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> {
+            likeService.createLike(new LikeCommand.Create(userId, nonExistentProductId));
+        }).isInstanceOf(CoreException.class);
+    }
+
+    @Test
+    @DisplayName("좋아요 존재 여부를 확인할 수 있다")
+    void shouldCheckLikeExistenceSuccessfully() {
+        // given
+        Long userId = testUser.getId();
+        Long productId = testProduct.getId();
+
+        // when - 좋아요 생성 전
+        boolean existsBefore = likeService.existsByUserIdAndProductId(userId, productId);
+
+        // then
+        assertThat(existsBefore).isFalse();
+
+        // when - 좋아요 생성 후
+        likeService.createLike(new LikeCommand.Create(userId, productId));
+        boolean existsAfter = likeService.existsByUserIdAndProductId(userId, productId);
+
+        // then
+        assertThat(existsAfter).isTrue();
+    }
+
+    @Test
+    @DisplayName("다른 유저가 같은 상품에 좋아요를 누를 수 있다")
+    void shouldAllowDifferentUsersToLikeSameProduct() {
+        // given
+        Long firstUserId = testUser.getId();
+        Long productId = testProduct.getId();
+
+        // 두 번째 유저 생성
+        var secondUserCommand = UserCommand.Create.of("testUser2", "FEMALE", "1995-05-05", "test2@naver.com");
+        UserEntity secondUser = userService.signUp(secondUserCommand);
+        Long secondUserId = secondUser.getId();
+
+        // when
+        LikeEntity firstLike = likeService.createLike(new LikeCommand.Create(firstUserId, productId));
+        LikeEntity secondLike = likeService.createLike(new LikeCommand.Create(secondUserId, productId));
+
+        // then
+        assertThat(firstLike).isNotNull();
+        assertThat(secondLike).isNotNull();
+        assertThat(firstLike.getId()).isNotEqualTo(secondLike.getId());
+        assertThat(likeService.existsByUserIdAndProductId(firstUserId, productId)).isTrue();
+        assertThat(likeService.existsByUserIdAndProductId(secondUserId, productId)).isTrue();
     }
 }
