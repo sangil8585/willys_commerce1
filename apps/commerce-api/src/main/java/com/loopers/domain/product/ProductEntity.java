@@ -58,5 +58,17 @@ public class ProductEntity extends BaseEntity {
         if (this.likes != null && this.likes > 0) {
             this.likes = this.likes - 1L;
         }
-    }       
+    }
+
+    public void deductStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "차감할 수량은 1개 이상이어야 합니다.");
+        }
+        
+        if (this.stock < quantity) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
+        }
+        
+        this.stock = this.stock - quantity;
+    }
 }
