@@ -32,6 +32,11 @@ public class ProductService {
     public Optional<ProductEntity> findById(Long productId) {
         return productRepository.findById(productId);
     }
+    
+    @Transactional
+    public ProductEntity save(ProductEntity product) {
+        return productRepository.save(product);
+    }
 
     @Transactional
     public void validateAndDeductStock(Long productId, Integer quantity) {

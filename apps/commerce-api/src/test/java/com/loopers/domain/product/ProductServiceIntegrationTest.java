@@ -47,11 +47,18 @@ public class ProductServiceIntegrationTest {
     }
 
     private void createTestProducts() {
-        ProductCommand.Create product1 = new ProductCommand.Create("메종키츠네 티셔츠", 1L, 15000L, 10L, 1L);
-        ProductCommand.Create product2 = new ProductCommand.Create("APC 티셔츠", 2L, 25000L, 5L, 4L);
-        ProductCommand.Create product3 = new ProductCommand.Create("지오다노 티셔츠", 1L, 3000L, 20L, 3L);
-        ProductCommand.Create product4 = new ProductCommand.Create("코닥 티셔츠", 3L, 1200L, 8L, 5L);
-        ProductCommand.Create product5 = new ProductCommand.Create("폴로 티셔츠", 4L, 20000L, 15L, 10L);
+        // 먼저 필요한 브랜드들을 생성
+        BrandEntity brand1 = brandService.create("메종키츠네");
+        BrandEntity brand2 = brandService.create("APC");
+        BrandEntity brand3 = brandService.create("지오다노");
+        BrandEntity brand4 = brandService.create("코닥");
+        BrandEntity brand5 = brandService.create("폴로");
+
+        ProductCommand.Create product1 = new ProductCommand.Create("메종키츠네 티셔츠", brand1.getId(), 15000L, 10L, 1L);
+        ProductCommand.Create product2 = new ProductCommand.Create("APC 티셔츠", brand2.getId(), 25000L, 5L, 4L);
+        ProductCommand.Create product3 = new ProductCommand.Create("지오다노 티셔츠", brand1.getId(), 3000L, 20L, 3L);
+        ProductCommand.Create product4 = new ProductCommand.Create("코닥 티셔츠", brand4.getId(), 1200L, 8L, 5L);
+        ProductCommand.Create product5 = new ProductCommand.Create("폴로 티셔츠", brand5.getId(), 20000L, 15L, 10L);
 
         productFacade.createProduct(product1);
         productFacade.createProduct(product2);
