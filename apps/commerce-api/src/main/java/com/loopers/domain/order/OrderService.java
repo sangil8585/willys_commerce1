@@ -28,14 +28,4 @@ public class OrderService {
     public OrderEntity save(OrderEntity order) {
         return orderRepository.save(order);
     }
-
-    @Transactional
-    public void cancelOrder(Long orderId) {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
-        
-        // 주문 취소 로직
-        order.cancel();
-        orderRepository.save(order);
-    }
-} 
+}

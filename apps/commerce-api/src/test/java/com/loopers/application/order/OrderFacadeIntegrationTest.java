@@ -1,5 +1,7 @@
 package com.loopers.application.order;
 
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserInfo;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductEntity;
@@ -33,7 +35,7 @@ public class OrderFacadeIntegrationTest {
     private OrderFacade orderFacade;
 
     @Autowired
-    private UserService userService;
+    private UserFacade userFacade;
 
     @Autowired
     private ProductService productService;
@@ -47,7 +49,7 @@ public class OrderFacadeIntegrationTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
-    private UserEntity testUser;
+    private UserInfo userInfo;
     private ProductEntity testProduct1;
     private ProductEntity testProduct2;
 
@@ -57,20 +59,21 @@ public class OrderFacadeIntegrationTest {
         String gender = "MALE";
         String birthDate = "1993-02-24";
         String email = "sangil8585@naver.com";
-        
+
         var userCommand = UserCommand.Create.of(loginId, gender, birthDate, email);
-        testUser = userService.signUp(userCommand);
-        
+        userInfo = userFacade.signUp(userCommand);
+
         // 포인트 충전
-        pointService.charge(testUser.getUserId(), 5000L);
+        pointService.charge(userInfo.userId(), 5000L);
 
         // 테스트용 브랜드 생성
         Long brandId = brandService.create("나이키").getId();
 
-        // 테스트용 상품 생성
+        // 테스트용 상품 생성1
         var productCommand1 = new ProductCommand.Create("티셔츠", brandId, 1000L, 10L, 0L);
         testProduct1 = productService.createProduct(productCommand1);
 
+        // 테스트용 상품 생성2
         var productCommand2 = new ProductCommand.Create("운동복", brandId, 2000L, 5L, 0L);
         testProduct2 = productService.createProduct(productCommand2);
     }
@@ -83,7 +86,7 @@ public class OrderFacadeIntegrationTest {
     @DisplayName("주문 생성")
     @Nested
     class Order {
-        
+
         @DisplayName("정상적인 주문을 생성한다")
         @Test
         void 정상적인_주문을_생성한다() {
@@ -92,18 +95,18 @@ public class OrderFacadeIntegrationTest {
                     OrderCommand.OrderItem.of(testProduct1.getId(), 2, testProduct1.getPrice()),
                     OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(testUser.getId(), items);
+            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
             // when
             OrderInfo orderInfo = orderFacade.createOrder(command);
 
             // then
-            assertThat(orderInfo.userId()).isEqualTo(testUser.getId());
+            assertThat(orderInfo.userId()).isEqualTo(userInfo.id());
             assertThat(orderInfo.items()).hasSize(2);
             assertThat(orderInfo.totalAmount()).isEqualTo(4000L); // 2x1000+1x2000
 
             // 주문 생성 후 포인트 잔액 확인 (서비스 레벨에서 검증)
-            Long remainingPoint = pointService.get(testUser.getUserId());
+            Long remainingPoint = pointService.get(userInfo.userId());
             assertThat(remainingPoint).isEqualTo(1000L); // 5000-4000
         }
 
@@ -114,7 +117,7 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                     OrderCommand.OrderItem.of(testProduct1.getId(), 15, testProduct1.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(testUser.getId(), items);
+            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> orderFacade.createOrder(command));
@@ -128,7 +131,7 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                     OrderCommand.OrderItem.of(testProduct1.getId(), 10, testProduct1.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(testUser.getId(), items);
+            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> orderFacade.createOrder(command));
@@ -142,7 +145,7 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                     OrderCommand.OrderItem.of(999L, 1, 1000L)
             );
-            OrderCommand.Create command = new OrderCommand.Create(testUser.getId(), items);
+            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
             // when & then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> orderFacade.createOrder(command));
@@ -156,12 +159,12 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items1 = List.of(
                     OrderCommand.OrderItem.of(testProduct1.getId(), 1, testProduct1.getPrice())
             );
-            OrderCommand.Create command1 = new OrderCommand.Create(testUser.getId(), items1);
+            OrderCommand.Create command1 = new OrderCommand.Create(userInfo.id(), items1);
 
             List<OrderCommand.OrderItem> items2 = List.of(
                     OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
-            OrderCommand.Create command2 = new OrderCommand.Create(testUser.getId(), items2);
+            OrderCommand.Create command2 = new OrderCommand.Create(userInfo.id(), items2);
 
             // when
             OrderInfo orderInfo1 = orderFacade.createOrder(command1);
@@ -170,10 +173,10 @@ public class OrderFacadeIntegrationTest {
             // then
             assertThat(orderInfo1.totalAmount()).isEqualTo(1000L);
             assertThat(orderInfo2.totalAmount()).isEqualTo(2000L);
-            assertThat(orderInfo1.userId()).isEqualTo(testUser.getId());
-            assertThat(orderInfo2.userId()).isEqualTo(testUser.getId());
+            assertThat(orderInfo1.userId()).isEqualTo(userInfo.id());
+            assertThat(orderInfo2.userId()).isEqualTo(userInfo.id());
 
-            Long finalPoint = pointService.get(testUser.getUserId());
+            Long finalPoint = pointService.get(userInfo.userId());
             assertThat(finalPoint).isEqualTo(2000L);
         }
 
@@ -181,20 +184,20 @@ public class OrderFacadeIntegrationTest {
         @Test
         void 주문후_포인트잔액_정확히_차감() {
             // given
-            Long initialPoint = pointService.get(testUser.getUserId());
+            Long initialPoint = pointService.get(userInfo.userId());
             assertThat(initialPoint).isEqualTo(5000L);
 
             List<OrderCommand.OrderItem> items = List.of(
                     OrderCommand.OrderItem.of(testProduct1.getId(), 3, testProduct1.getPrice()) // 3000원
             );
-            OrderCommand.Create command = new OrderCommand.Create(testUser.getId(), items);
+            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
             // when
             OrderInfo orderInfo = orderFacade.createOrder(command);
 
             // then
             assertThat(orderInfo.totalAmount()).isEqualTo(3000L);
-            Long remainingPoint = pointService.get(testUser.getUserId());
+            Long remainingPoint = pointService.get(userInfo.userId());
             assertThat(remainingPoint).isEqualTo(2000L);
         }
     }
