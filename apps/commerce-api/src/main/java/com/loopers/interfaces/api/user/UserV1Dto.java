@@ -1,8 +1,8 @@
 package com.loopers.interfaces.api.user;
 
+import com.loopers.application.user.UserInfo;
 import com.loopers.domain.user.UserCommand;
 import com.loopers.domain.user.UserEntity;
-import com.loopers.domain.user.UserInfo;
 import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {

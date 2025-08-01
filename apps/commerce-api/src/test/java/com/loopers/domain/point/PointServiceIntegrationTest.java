@@ -1,5 +1,11 @@
-package com.loopers.domain.user;
+package com.loopers.domain.point;
 
+import com.loopers.application.point.PointFacade;
+import com.loopers.application.point.PointInfo;
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserInfo;
+import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
@@ -16,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class PointServiceIntegrationTest {
     @Autowired
-    private PointService pointService;
+    private PointFacade pointFacade;
+    @Autowired
+    private UserFacade userFacade;
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
-    @Autowired
-    private UserService userService;
 
     @AfterEach
     void tearDown() {
@@ -46,14 +52,15 @@ public class PointServiceIntegrationTest {
                     "asdfas@naver.com"
             );
 
-            UserInfo result = userService.signUp(createCommand);
+            UserInfo result = userFacade.signUp(createCommand);
 
             // when
-            Long amount = pointService.get(result.userId());
+            PointInfo pointInfo = pointFacade.getPointInfo(result.userId());
 
             // then
-            assertNotNull(amount);
-            assertTrue(!(amount < 0));
+            assertNotNull(pointInfo);
+            assertNotNull(pointInfo.amount());
+            assertTrue(!(pointInfo.amount() < 0));
         }
 
         @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.")
@@ -63,10 +70,10 @@ public class PointServiceIntegrationTest {
             String nonExist = "nonExist";
 
             // when
-            Long amount = pointService.get(nonExist);
+            PointInfo pointInfo = pointFacade.getPointInfo(nonExist);
 
             // then
-            assertNull(amount);
+            assertNull(pointInfo);
         }
     }
 
@@ -86,11 +93,11 @@ public class PointServiceIntegrationTest {
             // when
 
             CoreException coreException = assertThrows(CoreException.class, () -> {
-                pointService.charge(nonExist, amount);
+                pointFacade.chargePoint(nonExist, amount);
             });
 
             // then
             assertThat(coreException.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
-}
+} 

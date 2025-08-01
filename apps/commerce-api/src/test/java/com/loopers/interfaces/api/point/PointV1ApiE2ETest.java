@@ -1,8 +1,9 @@
 package com.loopers.interfaces.api.point;
 
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserInfo;
 import com.loopers.domain.user.UserCommand;
 import com.loopers.domain.user.UserEntity;
-import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.user.UserV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
@@ -32,13 +33,13 @@ public class PointV1ApiE2ETest {
 
     private final TestRestTemplate testRestTemplate;
     private final DatabaseCleanUp databaseCleanUp;
-    private final UserService userService;
+    private final UserFacade userFacade;
 
     @Autowired
-    public PointV1ApiE2ETest(TestRestTemplate testRestTemplate, DatabaseCleanUp databaseCleanUp, UserService userService) {
+    public PointV1ApiE2ETest(TestRestTemplate testRestTemplate, DatabaseCleanUp databaseCleanUp, UserFacade userFacade) {
         this.testRestTemplate = testRestTemplate;
         this.databaseCleanUp = databaseCleanUp;
-        this.userService = userService;
+        this.userFacade = userFacade;
     }
 
     @AfterEach
@@ -66,7 +67,7 @@ public class PointV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            var testUser = userService.signUp(createCommand);
+            var testUser = userFacade.signUp(createCommand);
             var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of(testUser.userId())));
 
             // when
@@ -114,7 +115,7 @@ public class PointV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            var testUser = userService.signUp(createCommand);
+            var testUser = userFacade.signUp(createCommand);
             PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(
                     testUser.userId(),
                     1000L
