@@ -7,7 +7,5 @@ public interface LikeRepository {
 
     Optional<LikeEntity> findByUserIdAndProductId(Long userId, Long productId);
     
-    boolean existsByUserIdAndProductId(Long userId, Long productId);
-    
     void delete(LikeEntity like);
 }

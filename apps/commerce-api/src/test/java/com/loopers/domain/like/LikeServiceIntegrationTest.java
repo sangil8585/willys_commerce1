@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -80,10 +82,10 @@ class LikeServiceIntegrationTest {
         assertThat(like).isNotNull();
         assertThat(like.getUserId()).isEqualTo(userId);
         assertThat(like.getProductId()).isEqualTo(productId);
-        
-        // Repository를 통해 좋아요 존재 여부 확인
-        boolean exists = likeRepository.existsByUserIdAndProductId(userId, productId);
-        assertThat(exists).isTrue();
+
+        Optional<LikeEntity> foundLike = likeRepository.findByUserIdAndProductId(userId, productId);
+        assertThat(foundLike).isPresent();
+        assertThat(foundLike.get().getId()).isEqualTo(like.getId());
     }
 
     @Test
@@ -101,10 +103,10 @@ class LikeServiceIntegrationTest {
         // then
         assertThat(firstLike.getId()).isEqualTo(secondLike.getId());
         assertThat(secondLike.getId()).isEqualTo(thirdLike.getId());
-        
-        // Repository를 통해 좋아요 존재 여부 확인
-        boolean exists = likeRepository.existsByUserIdAndProductId(userId, productId);
-        assertThat(exists).isTrue();
+
+        Optional<LikeEntity> foundLike = likeRepository.findByUserIdAndProductId(userId, productId);
+        assertThat(foundLike).isPresent();
+        assertThat(foundLike.get().getId()).isEqualTo(firstLike.getId());
     }
 
     @Test
@@ -128,16 +130,17 @@ class LikeServiceIntegrationTest {
         Long productId = testProduct.getId();
 
         // when - 좋아요 생성 전
-        boolean existsBefore = likeRepository.existsByUserIdAndProductId(userId, productId);
+        Optional<LikeEntity> foundLikeBefore = likeRepository.findByUserIdAndProductId(userId, productId);
 
         // then
-        assertThat(existsBefore).isFalse();
+        assertThat(foundLikeBefore).isEmpty();
 
         // when - 좋아요 생성 후
-        likeService.createLike(new LikeCommand.Create(userId, productId));
-        boolean existsAfter = likeRepository.existsByUserIdAndProductId(userId, productId);
+        LikeEntity createdLike = likeService.createLike(new LikeCommand.Create(userId, productId));
+        Optional<LikeEntity> foundLikeAfter = likeRepository.findByUserIdAndProductId(userId, productId);
 
         // then
-        assertThat(existsAfter).isTrue();
+        assertThat(foundLikeAfter).isPresent();
+        assertThat(foundLikeAfter.get().getId()).isEqualTo(createdLike.getId());
     }
 }
