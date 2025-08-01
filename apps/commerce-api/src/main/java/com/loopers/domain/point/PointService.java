@@ -17,4 +17,8 @@ public class PointService {
     public Long charge(String userId, Long amount) {
         return pointRepository.chargePoint(userId, amount);
     }
+    
+    public void createPointForUser(String userId) {
+        pointRepository.createPointForUser(userId);
+    }
 } 
