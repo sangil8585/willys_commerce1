@@ -26,25 +26,25 @@ class Brand {
 
 class Order {
 +id: Long
-+user: User
++userId: Long 
 +items: List
 }
 
 class OrderItem {
-+product: Product
++productId: Long
 +quantity
 }
 
 class Likes {
-+user: User
++userId: Long
 +product: Product
 }
 
-Order "N" --> "1" User
-Order "1" --> "N" OrderItem
-OrderItem "N" --> "1" Product
-Product "N" --> "1" Brand
-User "1" --> "N" Likes
-Product "1" --> "N" Likes
+Order "N" <.. "1" User
+Order "1" <-- "N" OrderItem
+OrderItem "N" <.. "1" Product
+Brand "N" <.. "1" Product
+User "1" <.. "N" Likes
+Product "1" <.. "N" Likes
 
 ```
