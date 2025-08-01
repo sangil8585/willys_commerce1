@@ -6,7 +6,7 @@ public record ProductInfo(
         Long id,
         String name,
         Long brandId,
-        String brandName,  // 브랜드명 추가
+        String brandName,
         Long price,
         Long stock,
         Long likes

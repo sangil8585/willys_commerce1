@@ -10,7 +10,5 @@ public interface ProductRepository {
 
     Page<ProductEntity> find(ProductCriteria criteria, Pageable pageable);
 
-    boolean existsById(Long productId);
-
     Optional<ProductEntity> findById(Long productId);
 }
