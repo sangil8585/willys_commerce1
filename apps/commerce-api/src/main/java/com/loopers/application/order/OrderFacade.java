@@ -48,7 +48,7 @@ public class OrderFacade {
         return OrderInfo.from(savedOrder);
     }
 
-    private void validateAndDeductStock(java.util.List<OrderCommand.OrderItem> items) {
+    private void validateAndDeductStock(List<OrderCommand.OrderItem> items) {
         for (OrderCommand.OrderItem item : items) {
             productService.validateAndDeductStock(item.productId(), item.quantity());
         }
