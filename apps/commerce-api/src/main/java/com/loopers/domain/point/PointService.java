@@ -5,12 +5,14 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class PointService {
     private final PointRepository pointRepository;
 
-    public Long get(String userId) {
+    public Optional<Long> get(String userId) {
         return pointRepository.getPointByUserId(userId);
     }
 

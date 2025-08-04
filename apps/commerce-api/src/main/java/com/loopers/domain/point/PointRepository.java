@@ -1,7 +1,9 @@
 package com.loopers.domain.point;
 
+import java.util.Optional;
+
 public interface PointRepository {
-    Long getPointByUserId(String userId);
+    Optional<Long> getPointByUserId(String userId);
     Long chargePoint(String userId, Long amount);
     void createPointForUser(String userId);
 } 

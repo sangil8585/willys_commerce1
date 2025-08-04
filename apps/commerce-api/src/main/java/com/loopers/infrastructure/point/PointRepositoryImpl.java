@@ -16,13 +16,9 @@ public class PointRepositoryImpl implements PointRepository {
     private final PointJpaRepository pointJpaRepository;
 
     @Override
-    public Long getPointByUserId(String userId) {
+    public Optional<Long> getPointByUserId(String userId) {
         Optional<PointEntity> optional = pointJpaRepository.findByUserId(userId);
-        if(optional.isEmpty()) {
-            return null;
-        }
-        PointEntity pointEntity = optional.get();
-        return pointEntity.getAmount();
+        return optional.map(PointEntity::getAmount);
     }
 
     @Override

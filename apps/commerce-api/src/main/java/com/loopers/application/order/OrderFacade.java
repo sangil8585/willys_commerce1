@@ -61,11 +61,8 @@ public class OrderFacade {
                 .getUserId();
         
         // 현재 포인트 조회
-        Long currentPoints = pointService.get(userStringId);
-        
-        if (currentPoints == null) {
-            throw new CoreException(ErrorType.NOT_FOUND, "사용자 포인트 정보를 찾을 수 없습니다.");
-        }
+        Long currentPoints = pointService.get(userStringId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트 정보를 찾을 수 없습니다."));
         
         if (currentPoints < totalAmount) {
             throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
