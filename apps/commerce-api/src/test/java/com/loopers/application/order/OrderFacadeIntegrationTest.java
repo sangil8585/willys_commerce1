@@ -7,8 +7,6 @@ import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserCommand;
-import com.loopers.domain.user.UserEntity;
-import com.loopers.domain.user.UserService;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.support.error.CoreException;
@@ -23,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,8 +91,8 @@ public class OrderFacadeIntegrationTest {
         void 정상적인_주문을_생성한다() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(testProduct1.getId(), 2, testProduct1.getPrice()),
-                    OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
+                OrderCommand.OrderItem.of(testProduct1.getId(), 2, testProduct1.getPrice()),
+                OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
             OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
@@ -106,8 +105,8 @@ public class OrderFacadeIntegrationTest {
             assertThat(orderInfo.totalAmount()).isEqualTo(4000L); // 2x1000+1x2000
 
             // 주문 생성 후 포인트 잔액 확인 (서비스 레벨에서 검증)
-            Long remainingPoint = pointService.get(userInfo.userId());
-            assertThat(remainingPoint).isEqualTo(1000L); // 5000-4000
+            Optional<Long> remainingPoint = pointService.get(userInfo.userId());
+            assertThat(remainingPoint.orElse(null)).isEqualTo(1000L); // 5000-4000
         }
 
         @DisplayName("재고가 부족하면 주문 생성에 실패한다")
@@ -115,7 +114,7 @@ public class OrderFacadeIntegrationTest {
         void 재고부족시_주문생성_실패() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(testProduct1.getId(), 15, testProduct1.getPrice())
+                OrderCommand.OrderItem.of(testProduct1.getId(), 15, testProduct1.getPrice())
             );
             OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
@@ -129,7 +128,7 @@ public class OrderFacadeIntegrationTest {
         void 포인트부족시_주문생성_실패() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(testProduct1.getId(), 10, testProduct1.getPrice())
+                OrderCommand.OrderItem.of(testProduct1.getId(), 10, testProduct1.getPrice())
             );
             OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
@@ -143,7 +142,7 @@ public class OrderFacadeIntegrationTest {
         void 존재하지않는_상품으로_주문시_실패() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(999L, 1, 1000L)
+                OrderCommand.OrderItem.of(999L, 1, 1000L)
             );
             OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
@@ -157,12 +156,12 @@ public class OrderFacadeIntegrationTest {
         void 여러주문_생성_및_목록조회() {
             // given
             List<OrderCommand.OrderItem> items1 = List.of(
-                    OrderCommand.OrderItem.of(testProduct1.getId(), 1, testProduct1.getPrice())
+                OrderCommand.OrderItem.of(testProduct1.getId(), 1, testProduct1.getPrice())
             );
             OrderCommand.Create command1 = new OrderCommand.Create(userInfo.id(), items1);
 
             List<OrderCommand.OrderItem> items2 = List.of(
-                    OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
+                OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
             OrderCommand.Create command2 = new OrderCommand.Create(userInfo.id(), items2);
 
@@ -176,19 +175,19 @@ public class OrderFacadeIntegrationTest {
             assertThat(orderInfo1.userId()).isEqualTo(userInfo.id());
             assertThat(orderInfo2.userId()).isEqualTo(userInfo.id());
 
-            Long finalPoint = pointService.get(userInfo.userId());
-            assertThat(finalPoint).isEqualTo(2000L);
+            Optional<Long> finalPoint = pointService.get(userInfo.userId());
+            assertThat(finalPoint.orElse(null)).isEqualTo(2000L);
         }
 
         @DisplayName("주문 후 포인트 잔액이 정확히 차감된다")
         @Test
         void 주문후_포인트잔액_정확히_차감() {
             // given
-            Long initialPoint = pointService.get(userInfo.userId());
-            assertThat(initialPoint).isEqualTo(5000L);
+            Optional<Long> initialPoint = pointService.get(userInfo.userId());
+            assertThat(initialPoint.orElse(null)).isEqualTo(5000L);
 
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(testProduct1.getId(), 3, testProduct1.getPrice()) // 3000원
+                OrderCommand.OrderItem.of(testProduct1.getId(), 3, testProduct1.getPrice()) // 3000원
             );
             OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
 
@@ -197,8 +196,8 @@ public class OrderFacadeIntegrationTest {
 
             // then
             assertThat(orderInfo.totalAmount()).isEqualTo(3000L);
-            Long remainingPoint = pointService.get(userInfo.userId());
-            assertThat(remainingPoint).isEqualTo(2000L);
+            Optional<Long> remainingPoint = pointService.get(userInfo.userId());
+            assertThat(remainingPoint.orElse(null)).isEqualTo(2000L);
         }
     }
 } 
