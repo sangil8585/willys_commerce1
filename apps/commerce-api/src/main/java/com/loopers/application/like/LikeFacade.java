@@ -3,6 +3,7 @@ package com.loopers.application.like;
 import com.loopers.domain.like.LikeCommand;
 import com.loopers.domain.like.LikeEntity;
 import com.loopers.domain.like.LikeService;
+import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
@@ -25,10 +26,18 @@ public class LikeFacade {
             throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다.");
         }
 
-        productService.findById(createCommand.productId())
+        ProductEntity product = productService.findById(createCommand.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
 
+        boolean isNewLike = !likeService.existsByUserIdAndProductId(createCommand.userId(), createCommand.productId());
+
         LikeEntity likeEntity = likeService.createLike(createCommand);
+        
+        if (isNewLike) {
+            product.incrementLikes();
+            productService.save(product);
+        }
+        
         return LikeInfo.from(likeEntity);
     }
 
@@ -37,8 +46,12 @@ public class LikeFacade {
         if (!userService.existsById(userId)) {
             throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다.");
         }
-        productService.findById(productId)
+        
+        ProductEntity product = productService.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
+        
         likeService.removeLike(userId, productId);
+        product.decrementLikes();
+        productService.save(product);
     }
 }

@@ -5,12 +5,14 @@ import com.loopers.domain.like.LikeEntity;
 public record LikeInfo(
         Long id,
         Long userId,
+        Long productId,
         String targetType
 ) {
     public static LikeInfo from(LikeEntity likeEntity) {
         return new LikeInfo(
                 likeEntity.getId(),
                 likeEntity.getUserId(),
+                likeEntity.getProductId(),
                 "PRODUCT"
         );
     }
