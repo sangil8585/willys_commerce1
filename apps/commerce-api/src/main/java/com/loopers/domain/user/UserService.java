@@ -35,4 +35,14 @@ public class UserService {
 
         return userRepository.findByUserId(userId);
     }
+    
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
+    
+    @Transactional(readOnly = true)
+    public Optional<UserEntity> findById(Long id) {
+        return userRepository.findById(id);
+    }
 }
