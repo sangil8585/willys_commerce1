@@ -56,7 +56,7 @@ public class ProductServiceIntegrationTest {
 
         ProductCommand.Create product1 = new ProductCommand.Create("메종키츠네 티셔츠", brand1.getId(), 15000L, 10L, 1L);
         ProductCommand.Create product2 = new ProductCommand.Create("APC 티셔츠", brand2.getId(), 25000L, 5L, 4L);
-        ProductCommand.Create product3 = new ProductCommand.Create("지오다노 티셔츠", brand1.getId(), 3000L, 20L, 3L);
+        ProductCommand.Create product3 = new ProductCommand.Create("지오다노 티셔츠", brand3.getId(), 3000L, 20L, 3L);
         ProductCommand.Create product4 = new ProductCommand.Create("코닥 티셔츠", brand4.getId(), 1200L, 8L, 5L);
         ProductCommand.Create product5 = new ProductCommand.Create("폴로 티셔츠", brand5.getId(), 20000L, 15L, 10L);
 
@@ -220,7 +220,7 @@ public class ProductServiceIntegrationTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getContent()).hasSize(2); // 삼성 노트북, LG 모니터
+            assertThat(result.getContent()).hasSize(2);
             assertThat(result.getContent()).allMatch(product -> product.brandId().equals(1L));
         }
 
@@ -236,7 +236,7 @@ public class ProductServiceIntegrationTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getContent()).hasSize(2); // LG 모니터(20개), HP 프린터(15개)
+            assertThat(result.getContent()).hasSize(2);
             assertThat(result.getContent()).allMatch(product -> product.stock() > 10L);
         }
 
@@ -266,22 +266,5 @@ public class ProductServiceIntegrationTest {
             // 첫 번째 페이지와 두 번째 페이지의 상품이 다른지 확인
             assertThat(firstPageResult.getContent()).doesNotContainAnyElementsOf(secondPageResult.getContent());
         }
-
-//        @DisplayName("검색 결과가 없을 경우 빈 페이지 반환")
-//        @Test
-//        void 검색_결과_없을_경우_빈페이지_반환() {
-//            // given
-//            ProductCriteria criteria = ProductCriteria.nameContains("존재하지않는 상품");
-//            Pageable pageable = PageRequest.of(0, 10);
-//
-//            // when
-//            Page<ProductInfo> result = productFacade.findProducts(criteria, pageable);
-//
-//            // then
-//            assertThat(result).isNotNull();
-//            assertThat(result.getContent()).isEmpty();
-//            assertThat(result.getTotalElements()).isEqualTo(0);
-//            assertThat(result.getTotalPages()).isEqualTo(0);
-//        }
     }
 }
