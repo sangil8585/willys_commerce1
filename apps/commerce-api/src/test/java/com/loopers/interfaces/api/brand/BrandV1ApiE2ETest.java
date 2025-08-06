@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.brand;
 
 
 import com.loopers.domain.brand.BrandEntity;
+import com.loopers.domain.brand.BrandService;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.interfaces.api.ApiResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -28,6 +29,8 @@ public class BrandV1ApiE2ETest {
     @Autowired
     private BrandJpaRepository brandJpaRepository;
 
+    @Autowired
+    private BrandService brandService;
 
 
     @AfterEach
@@ -35,8 +38,8 @@ public class BrandV1ApiE2ETest {
         brandJpaRepository.deleteAll();
     }
 
-    private BrandEntity createBrand(String name) {
-        final BrandEntity brand = new BrandEntity(name);
+    private BrandEntity createBrand(String brandName) {
+        final BrandEntity brand = brandService.create(brandName);
         return brandJpaRepository.save(brand);
     }
 
