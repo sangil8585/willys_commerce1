@@ -89,13 +89,6 @@ public class ProductV1ApiE2ETest {
         ResponseEntity<ApiResponse<ProductV1Dto.V1.GetProductListResponse>> response =
                 testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null), responseType);
 
-        // 디버깅을 위한 출력
-        System.out.println("Response Status: " + response.getStatusCode());
-        System.out.println("Response Body: " + response.getBody());
-        if (response.getBody() != null && response.getBody().data() != null) {
-            System.out.println("Products size: " + response.getBody().data().products().size());
-            System.out.println("Products: " + response.getBody().data().products());
-        }
 
         //then
         assertAll(
