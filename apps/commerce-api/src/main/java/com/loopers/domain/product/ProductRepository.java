@@ -11,4 +11,6 @@ public interface ProductRepository {
     Page<ProductEntity> find(ProductCriteria criteria, Pageable pageable);
 
     Optional<ProductEntity> findById(Long productId);
+    
+    Optional<ProductEntity> findByIdWithLock(Long productId);
 }
