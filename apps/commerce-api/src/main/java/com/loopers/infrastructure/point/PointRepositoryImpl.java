@@ -41,4 +41,14 @@ public class PointRepositoryImpl implements PointRepository {
             pointJpaRepository.save(pointEntity);
         }
     }
+    
+    // 비관락 메서드 추가가
+    public Optional<PointEntity> findByUserIdWithLock(String userId) {
+        return pointJpaRepository.findByUserIdWithLock(userId);
+    }
+    
+    @Override
+    public PointEntity save(PointEntity point) {
+        return pointJpaRepository.save(point);
+    }
 } 
