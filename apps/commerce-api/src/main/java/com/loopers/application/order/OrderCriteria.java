@@ -3,6 +3,8 @@ package com.loopers.application.order;
 import com.loopers.domain.order.OrderCommand;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class OrderCriteria {
     public record Item(
@@ -15,10 +17,10 @@ public class OrderCriteria {
             Long userId,
             List<Item> orderItems
     ) {
-        public OrderCommand.Create toCommand() {
-
-            return new OrderCommand.Create(userId, items);
-        }
+//        public OrderCommand.Create toCommand() {
+//
+//            return new OrderCommand.Create(userId, items);
+//        }
 
         public Map<Long, Long> getOrderItemMap() {
             return orderItems.stream()

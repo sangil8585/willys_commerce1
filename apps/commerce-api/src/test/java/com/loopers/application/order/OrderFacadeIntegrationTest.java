@@ -94,7 +94,8 @@ public class OrderFacadeIntegrationTest {
                 OrderCommand.OrderItem.of(testProduct1.getId(), 2, testProduct1.getPrice()),
                 OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
+            // 생성
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
             // when
             OrderInfo orderInfo = orderFacade.createOrder(command);
@@ -104,7 +105,7 @@ public class OrderFacadeIntegrationTest {
             assertThat(orderInfo.items()).hasSize(2);
             assertThat(orderInfo.totalAmount()).isEqualTo(4000L); // 2x1000+1x2000
 
-            // 주문 생성 후 포인트 잔액 확인 (서비스 레벨에서 검증)
+            // 주문 생성 후 포인트 잔액확인
             Optional<Long> remainingPoint = pointService.get(userInfo.userId());
             assertThat(remainingPoint.orElse(null)).isEqualTo(1000L); // 5000-4000
         }
@@ -116,7 +117,8 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                 OrderCommand.OrderItem.of(testProduct1.getId(), 15, testProduct1.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
+            // 생성
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> orderFacade.createOrder(command));
@@ -130,7 +132,8 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                 OrderCommand.OrderItem.of(testProduct1.getId(), 10, testProduct1.getPrice())
             );
-            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
+            // 생성
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> orderFacade.createOrder(command));
@@ -144,7 +147,8 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                 OrderCommand.OrderItem.of(999L, 1, 1000L)
             );
-            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
+            // 생성
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
             // when & then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> orderFacade.createOrder(command));
@@ -158,12 +162,14 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items1 = List.of(
                 OrderCommand.OrderItem.of(testProduct1.getId(), 1, testProduct1.getPrice())
             );
-            OrderCommand.Create command1 = new OrderCommand.Create(userInfo.id(), items1);
+            // 생성
+            OrderCommand.Create command1 = OrderCommand.Create.of(userInfo.id(), items1);
 
             List<OrderCommand.OrderItem> items2 = List.of(
                 OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
             );
-            OrderCommand.Create command2 = new OrderCommand.Create(userInfo.id(), items2);
+            // 생성2
+            OrderCommand.Create command2 = OrderCommand.Create.of(userInfo.id(), items2);
 
             // when
             OrderInfo orderInfo1 = orderFacade.createOrder(command1);
@@ -189,7 +195,8 @@ public class OrderFacadeIntegrationTest {
             List<OrderCommand.OrderItem> items = List.of(
                 OrderCommand.OrderItem.of(testProduct1.getId(), 3, testProduct1.getPrice()) // 3000원
             );
-            OrderCommand.Create command = new OrderCommand.Create(userInfo.id(), items);
+            // 생성
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
             // when
             OrderInfo orderInfo = orderFacade.createOrder(command);
