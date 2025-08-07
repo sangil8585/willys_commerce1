@@ -17,9 +17,17 @@ public class PointService {
         return pointRepository.getPointByUserId(userId);
     }
 
+    // 낙관적 락을 사용한 포인트 충전
     @Transactional
     public Long charge(String userId, Long amount) {
-        return pointRepository.chargePoint(userId, amount);
+        // 낙관적 락으로 포인트 조회
+        PointEntity point = pointRepository.findByUserIdWithOptimisticLock(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트 정보를 찾을 수 없습니다."));
+        
+        point.charge(amount);
+        PointEntity saved = pointRepository.save(point);
+        
+        return saved.getAmount();
     }
     
     // 비관락을 사용해서 포인트 차감하는 메서드
@@ -33,7 +41,6 @@ public class PointService {
             throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
         }
         
-        // 포인트를 차감한다.
         point.charge(-amount);
         pointRepository.save(point);
     }

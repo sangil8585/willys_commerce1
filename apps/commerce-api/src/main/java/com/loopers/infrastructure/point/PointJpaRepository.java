@@ -21,4 +21,9 @@ public interface PointJpaRepository extends JpaRepository<PointEntity, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM PointEntity p WHERE p.userId = :userId")
     Optional<PointEntity> findByUserIdWithLock(@Param("userId") String userId);
+    
+    // 포인트 충전시 낙관적 락을 사용한 포인트 조회
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT p FROM PointEntity p WHERE p.userId = :userId")
+    Optional<PointEntity> findByUserIdWithOptimisticLock(@Param("userId") String userId);
 } 
