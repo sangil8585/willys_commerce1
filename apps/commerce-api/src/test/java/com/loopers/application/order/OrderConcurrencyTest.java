@@ -9,7 +9,7 @@ import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserCommand;
-import com.loopers.support.error.CoreException;
+import com.loopers.domain.user.UserEntity;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,26 +53,24 @@ public class OrderConcurrencyTest {
     private UserInfo userInfo;
     private ProductEntity testProduct;
     private Long couponId;
+    private static final Long TEST_POINT = 10000L;
 
     @BeforeEach
     void setUp() {
-        // 테스트용 사용자 생성
-        String loginId = "concurrency_test_user";
-        String gender = "MALE";
-        String birthDate = "1990-01-01";
-        String email = "concurrency@test.com";
+        UserCommand.Create createCommand = new UserCommand.Create(
+                "sangil8585",
+                UserEntity.Gender.MALE,
+                "1993-02-24",
+                "sangil8585@naver.com"
+        );
+        userInfo = userFacade.signUp(createCommand);
 
-        var userCommand = UserCommand.Create.of(loginId, gender, birthDate, email);
-        userInfo = userFacade.signUp(userCommand);
+        pointService.charge(userInfo.userId(), TEST_POINT);
+//        pointService.charge(userInfo.userId(), TEST_POINT);
 
-        // 포인트 충전 (충분한 금액)
-        pointService.charge(userInfo.userId(), 100000L);
-
-        // 테스트용 상품 생성 (재고 10개)
         var productCommand = new com.loopers.domain.product.ProductCommand.Create("테스트 상품", 1L, 1000L, 10L, 0L);
         testProduct = productService.createProduct(productCommand);
 
-        // 테스트용 쿠폰 생성
         couponId = couponService.createCoupon(
             userInfo.userId(),
             "테스트 쿠폰",

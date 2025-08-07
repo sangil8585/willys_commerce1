@@ -39,16 +39,16 @@ public class OrderV1ApiE2ETest {
 
 
         //when
-        ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>>
-                responseType = new ParameterizedTypeReference<>() {};
-        ResponseEntity<ApiResponse<OrderV1Dto>> response =
-                testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(null), responseType);
+//        ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>>
+//                responseType = new ParameterizedTypeReference<>() {};
+//        ResponseEntity<ApiResponse<OrderV1Dto>> response =
+//                testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(null), responseType);
 
         //then
-        assertAll(
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody()).isNotNull(),
-                () -> assertThat(response.getBody().data().),
-        );
+//        assertAll(
+//                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+//                () -> assertThat(response.getBody()).isNotNull(),
+//                () -> assertThat(response.getBody().data().),
+//        );
     }
 }

@@ -9,7 +9,9 @@ public record OrderInfo(
         Long id,
         Long userId,
         List<OrderItemInfo> items,
-        Long totalAmount
+        Long totalAmount,
+        Long finalAmount,
+        Long discountAmount
 ) {
     public static OrderInfo from(OrderEntity orderEntity) {
         List<OrderItemInfo> itemInfos = orderEntity.getItems().stream()
@@ -20,7 +22,9 @@ public record OrderInfo(
                 orderEntity.getId(),
                 orderEntity.getUserId(),
                 itemInfos,
-                orderEntity.getTotalAmount()
+                orderEntity.getTotalAmount(),
+                orderEntity.getFinalAmount(),
+                orderEntity.getDiscountAmount()
         );
     }
 

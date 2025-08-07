@@ -10,6 +10,7 @@ import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserEntity;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,18 +55,21 @@ public class PessimisticLockTest {
     private ProductEntity testProduct;
     private Long couponId;
 
+    private static final Long TEST_POINT = 10000L;
+
     @BeforeEach
     void setUp() {
-        // 테스트용 사용자 생성
-        String loginId = "pessimistic_test_user";
-        String gender = "MALE";
-        String birthDate = "1990-01-01";
-        String email = "pessimistic@test.com";
+        UserCommand.Create createCommand = new UserCommand.Create(
+                "sangil8585",
+                UserEntity.Gender.MALE,
+                "1993-02-24",
+                "sangil8585@naver.com"
+        );
 
-        var userCommand = UserCommand.Create.of(loginId, gender, birthDate, email);
-        userInfo = userFacade.signUp(userCommand);
+        userInfo = userFacade.signUp(createCommand);
 
-        pointService.charge(userInfo.userId(), 10000L);
+//        pointService.charge(userInfo.userId(), 10000L);
+        pointService.charge(userInfo.userId(), TEST_POINT);
 
         var productCommand = new ProductCommand.Create("비관적락 테스트 상품", 1L, 1000L, 10L, 0L);
         testProduct = productService.createProduct(productCommand);
@@ -239,4 +243,4 @@ public class PessimisticLockTest {
         assertEquals(10, successCount.get());
         assertEquals(5, failureCount.get());
     }
-} 
+}
