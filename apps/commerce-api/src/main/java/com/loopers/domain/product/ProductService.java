@@ -51,4 +51,9 @@ public class ProductService {
         product.deductStock(quantity);
         productRepository.save(product);
     }
+    
+    @Transactional
+    public Optional<ProductEntity> findByIdWithLockForLikes(Long productId) {
+        return productRepository.findByIdWithLockForLikes(productId);
+    }
 }

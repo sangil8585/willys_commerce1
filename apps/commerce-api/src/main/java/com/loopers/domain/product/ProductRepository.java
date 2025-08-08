@@ -13,4 +13,6 @@ public interface ProductRepository {
     Optional<ProductEntity> findById(Long productId);
     
     Optional<ProductEntity> findByIdWithLock(Long productId);
+    
+    Optional<ProductEntity> findByIdWithLockForLikes(Long productId);
 }
