@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class PointFacade {
@@ -19,7 +21,7 @@ public class PointFacade {
 
     @Transactional(readOnly = true)
     public PointInfo getPointInfo(String userId) {
-        Long amount = pointService.get(userId);
-        return PointInfo.from(userId, amount, false);
+        Optional<Long> amount = pointService.get(userId);
+        return PointInfo.from(userId, amount.orElse(null), false);
     }
 } 

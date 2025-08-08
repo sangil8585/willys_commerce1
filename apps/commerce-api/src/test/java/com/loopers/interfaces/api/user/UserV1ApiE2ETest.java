@@ -51,7 +51,8 @@ public class UserV1ApiE2ETest {
                     "1993-02-24", "sangil8585@naver.com");
 
             // when
-            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>>
+                    responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
                     testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, new HttpEntity<>(signUpRequest), responseType);
 

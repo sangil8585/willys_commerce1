@@ -40,7 +40,8 @@ public class ProductService {
 
     @Transactional
     public void validateAndDeductStock(Long productId, Integer quantity) {
-        ProductEntity product = productRepository.findById(productId)
+        // 비관적 락으로 상품 조회
+        ProductEntity product = productRepository.findByIdWithLock(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
         
         if (product.getStock() < quantity) {
@@ -49,5 +50,10 @@ public class ProductService {
         
         product.deductStock(quantity);
         productRepository.save(product);
+    }
+    
+    @Transactional
+    public Optional<ProductEntity> findByIdWithLockForLikes(Long productId) {
+        return productRepository.findByIdWithLockForLikes(productId);
     }
 }

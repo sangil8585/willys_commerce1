@@ -36,11 +36,12 @@ public class ProductFacade {
         }
         
         // 브랜드 존재 여부 확인
-        brandService.find(command.brandId())
+        String brandName = brandService.find(command.brandId())
+                .map(brand -> brand.getName())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 브랜드입니다."));
         
         ProductEntity productEntity = productService.createProduct(command);
-        return ProductInfo.from(productEntity);
+        return ProductInfo.from(productEntity, brandName);
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +56,10 @@ public class ProductFacade {
             return ProductInfo.from(productEntity, brandName);
         });
     }
+
+
+
+
     
     @Transactional(readOnly = true)
     public ProductInfo findProductById(Long productId) {

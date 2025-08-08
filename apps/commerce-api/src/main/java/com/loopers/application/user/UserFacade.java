@@ -30,7 +30,7 @@ public class UserFacade {
     public UserInfo findByUserId(String userId) {
 
         UserEntity userEntity = userService.findByUserId(userId).orElseThrow(() ->
-                new CoreException(ErrorType.NOT_FOUND));
+                new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
 
         return UserInfo.from(userEntity);
     }

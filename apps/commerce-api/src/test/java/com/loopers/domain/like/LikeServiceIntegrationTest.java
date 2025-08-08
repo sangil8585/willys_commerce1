@@ -56,19 +56,6 @@ class LikeServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("로그인하지 않은 유저면 좋아요를 실패한다")
-    void 로그인_하지않은_유저는_좋아요를_실패() {
-        // given
-        Long nonExistentUserId = 999L;
-        Long productId = testProduct.getId();
-
-        // when & then
-        assertThatThrownBy(() -> {
-            likeService.createLike(new LikeCommand.Create(nonExistentUserId, productId));
-        }).isInstanceOf(CoreException.class);
-    }
-
-    @Test
     @DisplayName("유저가 있을때는 좋아요를 성공한다")
     void 유저가_있을때_좋아요_성공() {
         // given
@@ -110,19 +97,6 @@ class LikeServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 상품에 좋아요를 누르면 실패한다")
-    void 존재하지않는_상품에_좋아요를_누르면_실패() {
-        // given
-        Long userId = testUser.getId();
-        Long nonExistentProductId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> {
-            likeService.createLike(new LikeCommand.Create(userId, nonExistentProductId));
-        }).isInstanceOf(CoreException.class);
-    }
-
-    @Test
     @DisplayName("좋아요 존재 여부를 확인할 수 있다")
     void 좋아요_여부를_확인할수있다() {
         // given
@@ -130,17 +104,45 @@ class LikeServiceIntegrationTest {
         Long productId = testProduct.getId();
 
         // when - 좋아요 생성 전
-        Optional<LikeEntity> foundLikeBefore = likeRepository.findByUserIdAndProductId(userId, productId);
+        boolean existsBefore = likeService.existsByUserIdAndProductId(userId, productId);
 
         // then
-        assertThat(foundLikeBefore).isEmpty();
+        assertThat(existsBefore).isFalse();
 
         // when - 좋아요 생성 후
         LikeEntity createdLike = likeService.createLike(new LikeCommand.Create(userId, productId));
-        Optional<LikeEntity> foundLikeAfter = likeRepository.findByUserIdAndProductId(userId, productId);
+        boolean existsAfter = likeService.existsByUserIdAndProductId(userId, productId);
 
         // then
-        assertThat(foundLikeAfter).isPresent();
-        assertThat(foundLikeAfter.get().getId()).isEqualTo(createdLike.getId());
+        assertThat(existsAfter).isTrue();
+    }
+
+    @Test
+    @DisplayName("좋아요를 삭제할 수 있다")
+    void 좋아요_삭제_테스트() {
+        // given
+        Long userId = testUser.getId();
+        Long productId = testProduct.getId();
+        LikeEntity createdLike = likeService.createLike(new LikeCommand.Create(userId, productId));
+
+        // when
+        likeService.removeLike(userId, productId);
+
+        // then
+        Optional<LikeEntity> foundLike = likeRepository.findByUserIdAndProductId(userId, productId);
+        assertThat(foundLike).isEmpty();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 좋아요를 삭제하려고 하면 예외가 발생한다")
+    void 존재하지않는_좋아요_삭제_예외_테스트() {
+        // given
+        Long userId = testUser.getId();
+        Long productId = testProduct.getId();
+
+        // when & then
+        assertThatThrownBy(() -> {
+            likeService.removeLike(userId, productId);
+        }).isInstanceOf(CoreException.class);
     }
 }

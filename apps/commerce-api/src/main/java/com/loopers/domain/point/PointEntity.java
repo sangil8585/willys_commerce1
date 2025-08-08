@@ -22,15 +22,21 @@ public class PointEntity extends BaseEntity {
     @Column(name = "amount", nullable = false)
     private Long amount;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     public PointEntity(String userId, Long amount) {
         this.userId = userId;
         this.amount = amount;
+        this.version = 0L;
     }
 
     public PointEntity(Long id, String userId, Long amount) {
         this.id = id;
         this.userId = userId;
         this.amount = amount;
+        this.version = 0L;
     }
 
     public Long getId() {
@@ -43,6 +49,10 @@ public class PointEntity extends BaseEntity {
 
     public Long getAmount() {
         return amount;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 
     public void charge(Long chargeAmount) {

@@ -5,10 +5,15 @@ import java.util.List;
 public class OrderCommand {
     public record Create(
             Long userId,
-            List<OrderItem> items
+            List<OrderItem> items,
+            Long couponId
     ) {
         public static Create of(Long userId, List<OrderItem> items) {
-            return new Create(userId, items);
+            return new Create(userId, items, null);
+        }
+        
+        public static Create of(Long userId, List<OrderItem> items, Long couponId) {
+            return new Create(userId, items, couponId);
         }
     }
 

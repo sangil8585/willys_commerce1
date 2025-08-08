@@ -21,6 +21,7 @@ public class OrderEntity extends BaseEntity {
     private List<OrderItemEntity> items = new ArrayList<>();
     
     private Long totalAmount;
+    private Long discountAmount = 0L;
 
     protected OrderEntity() {}
 
@@ -57,6 +58,20 @@ public class OrderEntity extends BaseEntity {
         this.totalAmount = items.stream()
                 .mapToLong(item -> item.getPrice() * item.getQuantity())
                 .sum();
+    }
+    
+    public void applyDiscount(Long discountAmount) {
+        if (discountAmount == null || discountAmount < 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "할인 금액은 0 이상이어야 합니다.");
+        }
+        if (discountAmount > this.totalAmount) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "할인 금액은 주문 총액을 초과할 수 없습니다.");
+        }
+        this.discountAmount = discountAmount;
+    }
+    
+    public Long getFinalAmount() {
+        return this.totalAmount - this.discountAmount;
     }
 
     public void addItem(OrderCommand.OrderItem itemCommand) {

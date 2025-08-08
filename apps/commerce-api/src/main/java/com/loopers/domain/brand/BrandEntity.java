@@ -28,7 +28,7 @@ public class BrandEntity extends BaseEntity {
         if (name == null) {
             throw new CoreException(ErrorType.BAD_REQUEST, "브랜드명은 null일 수 없습니다.");
         }
-        if (name.trim().isEmpty()) {
+        if (name.isBlank()) {
             throw new CoreException(ErrorType.BAD_REQUEST, "브랜드명은 비어있을 수 없습니다.");
         }
         if (name.length() > 30) {
