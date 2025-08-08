@@ -17,9 +17,23 @@ public class CouponService {
     private final CouponRepository couponRepository;
     
     @Transactional
-    public CouponEntity createCoupon(String userId, String name, CouponType type, Long discountValue, 
-                                   Long minOrderAmount, Long maxDiscountAmount, ZonedDateTime expiredAt) {
-        CouponEntity coupon = CouponEntity.create(userId, name, type, discountValue, minOrderAmount, maxDiscountAmount, expiredAt);
+    public CouponEntity createCoupon(
+            String userId,
+            String name,
+            CouponType type,
+            Long discountValue,
+            Long minOrderAmount,
+            Long maxDiscountAmount,
+            ZonedDateTime expiredAt) {
+        CouponEntity coupon = CouponEntity.create(
+                userId,
+                name,
+                type,
+                discountValue,
+                minOrderAmount,
+                maxDiscountAmount,
+                expiredAt
+        );
         return couponRepository.save(coupon);
     }
     
@@ -48,7 +62,6 @@ public class CouponService {
         // 쿠폰 사용 처리 (비관적 락으로 동시성 제어)
         coupon.use();
         return couponRepository.save(coupon);
-        // 트랜잭션 종료 시 락 해제
     }
     
     @Transactional(readOnly = true)
@@ -83,4 +96,4 @@ public class CouponService {
     public void deleteCoupon(Long id) {
         couponRepository.deleteById(id);
     }
-} 
+}
