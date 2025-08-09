@@ -45,18 +45,19 @@ public class OrderFacade {
 
         Long discountAmount = 0L;
         // 쿠폰 사용을 먼저 처리 (비관적 락으로 동시성 제어)
-        if (command.couponId() != null) {
-            String userStringId = userService.findById(command.userId())
-                    .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
-                    .getUserId();
-            
-            discountAmount = couponService.calculateDiscount(command.couponId(), userStringId, totalAmount);
-            couponService.useCoupon(command.couponId(), userStringId, totalAmount);
+        String userId = userService.findById(command.userId())
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
+                .getUserId();
+
+        if(command.couponId() != null) {
+            discountAmount = couponService.calculateDiscount(command.couponId(), userId, totalAmount);
+            couponService.useCoupon(command.couponId(), userId, totalAmount);
         }
 
         Long finalAmount = totalAmount - discountAmount;
-        validateAndDeductStock(command.items());
-        validateAndDeductPoints(command.userId(), finalAmount);
+        // 여기서 deduct자체가 검증이니까 valicate를 할필요없다
+        productService.deductStock(command.getItemQuantityMap());
+        pointService.deductPoint(userId, totalAmount);
 
         OrderEntity order = OrderEntity.from(commandWithPrice);
         order.applyDiscount(discountAmount);
@@ -66,17 +67,4 @@ public class OrderFacade {
         return OrderInfo.from(savedOrder);
     }
 
-    private void validateAndDeductStock(List<OrderCommand.OrderItem> items) {
-        for (OrderCommand.OrderItem item : items) {
-            productService.validateAndDeductStock(item.productId(), item.quantity());
-        }
-    }
-
-    private void validateAndDeductPoints(Long userId, Long totalAmount) {
-        String userStringId = userService.findById(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
-                .getUserId();
-        
-        pointService.deductPoint(userStringId, totalAmount);
-    }
 } 

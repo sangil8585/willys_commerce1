@@ -1,9 +1,8 @@
 package com.loopers.interfaces.api.point;
 
-import com.loopers.application.user.UserFacade;
-import com.loopers.application.user.UserInfo;
 import com.loopers.domain.user.UserCommand;
 import com.loopers.domain.user.UserEntity;
+import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.user.UserV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
@@ -33,13 +32,13 @@ public class PointV1ApiE2ETest {
 
     private final TestRestTemplate testRestTemplate;
     private final DatabaseCleanUp databaseCleanUp;
-    private final UserFacade userFacade;
+    private final UserService userService;
 
     @Autowired
-    public PointV1ApiE2ETest(TestRestTemplate testRestTemplate, DatabaseCleanUp databaseCleanUp, UserFacade userFacade) {
+    public PointV1ApiE2ETest(TestRestTemplate testRestTemplate, DatabaseCleanUp databaseCleanUp, UserService userService) {
         this.testRestTemplate = testRestTemplate;
         this.databaseCleanUp = databaseCleanUp;
-        this.userFacade = userFacade;
+        this.userService = userService;
     }
 
     @AfterEach
@@ -67,13 +66,13 @@ public class PointV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            var testUser = userFacade.signUp(createCommand);
-            var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of(testUser.userId())));
+            var testUser = userService.signUp(createCommand);
+            var headers = new MultiValueMapAdapter<>(Map.of("X-USER-ID", List.of(testUser.getUserId())));
 
             // when
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), responseType);
 
             // then
             assertTrue(response.getStatusCode().is2xxSuccessful());
@@ -115,9 +114,9 @@ public class PointV1ApiE2ETest {
                     "1993-02-24",
                     "asdfas@naver.com"
             );
-            var testUser = userFacade.signUp(createCommand);
+            var testUser = userService.signUp(createCommand);
             PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(
-                    testUser.userId(),
+                    testUser.getUserId(),
                     1000L
             );
 
