@@ -223,7 +223,7 @@ public class OrderConcurrencyTest {
     @DisplayName("동일한 상품에 대해 여러명이 좋아요/싫어요를 요청해도, 상품의 좋아요 개수가 정상 반영되어야 한다")
     void 동시_좋아요_싫어요_테스트() throws Exception {
         // given
-        int threadCount = 10;
+        int threadCount = 15; 
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
         AtomicInteger successCount = new AtomicInteger(0);

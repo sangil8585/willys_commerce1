@@ -31,7 +31,7 @@ public class OrderFacade {
     public OrderInfo createOrder(OrderCommand.Create command) {
         List<OrderCommand.OrderItem> itemsWithPrice = command.items().stream()
                 .map(item -> {
-                    ProductEntity product = productService.findById(item.productId())
+                    ProductEntity product = productService.findByIdWithLockForLikes(item.productId())
                             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
                     return OrderCommand.OrderItem.of(item.productId(), item.quantity(), product.getPrice());
                 })
@@ -57,7 +57,7 @@ public class OrderFacade {
         Long finalAmount = totalAmount - discountAmount;
         // 여기서 deduct자체가 검증이니까 valicate를 할필요없다
         productService.deductStock(command.getItemQuantityMap());
-        pointService.deductPoint(userId, totalAmount);
+        pointService.deductPoint(userId, finalAmount);
 
         OrderEntity order = OrderEntity.from(commandWithPrice);
         order.applyDiscount(discountAmount);
