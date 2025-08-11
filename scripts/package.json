@@ -1,0 +1,21 @@
+{
+  "name": "product-data-generator",
+  "version": "1.0.0",
+  "description": "CSV 파일을 읽어서 상품 데이터 생성 SQL을 만드는 스크립트",
+  "main": "generate_sql.js",
+  "scripts": {
+    "generate": "node generate_sql.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "csv",
+    "sql",
+    "product",
+    "data-generation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
