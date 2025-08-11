@@ -158,9 +158,10 @@ class CouponTest {
             null, 
             ZonedDateTime.now().plusDays(7)
         );
+        Long orderAmount = 10000L; // 최소 주문 금액(5000L)을 만족하는 주문 금액
 
         // when
-        coupon.use();
+        coupon.use(orderAmount);
 
         // then
         assertThat(coupon.isUsed()).isTrue();
@@ -180,10 +181,10 @@ class CouponTest {
             null, 
             ZonedDateTime.now().plusDays(7)
         );
-        coupon.use(); // 첫 번째 사용
+        coupon.use(10000L); // 첫 번째 사용
 
         // when & then
-        assertThatThrownBy(() -> coupon.use())
+        assertThatThrownBy(() -> coupon.use(10000L))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("이미 사용된 쿠폰입니다.");
     }
@@ -203,7 +204,7 @@ class CouponTest {
         );
 
         // when & then
-        assertThatThrownBy(() -> coupon.use())
+        assertThatThrownBy(() -> coupon.use(10000L))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("만료된 쿠폰입니다.");
     }
@@ -221,7 +222,7 @@ class CouponTest {
             null, 
             ZonedDateTime.now().plusDays(7)
         );
-        coupon.use(); // 쿠폰 사용
+        coupon.use(10000L); // 쿠폰 사용
         Long orderAmount = 10000L;
 
         // when & then

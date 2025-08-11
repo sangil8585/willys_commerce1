@@ -48,19 +48,11 @@ public class CouponService {
             throw new CoreException(ErrorType.BAD_REQUEST, "해당 쿠폰의 소유자가 아닙니다.");
         }
         
-        // 사용 가능 여부 확인
-        if (!coupon.canUse(orderAmount)) {
-            if (coupon.isUsed()) {
-                throw new CoreException(ErrorType.BAD_REQUEST, "이미 사용된 쿠폰입니다.");
-            } else if (coupon.isExpired()) {
-                throw new CoreException(ErrorType.BAD_REQUEST, "만료된 쿠폰입니다.");
-            } else {
-                throw new CoreException(ErrorType.BAD_REQUEST, "최소 주문 금액을 만족하지 않습니다.");
-            }
+        try {
+            coupon.use(orderAmount);
+        } catch (IllegalStateException e) {
+            throw new CoreException(ErrorType.BAD_REQUEST, e.getMessage());
         }
-        
-        // 쿠폰 사용 처리 (비관적 락으로 동시성 제어)
-        coupon.use();
         return couponRepository.save(coupon);
     }
     

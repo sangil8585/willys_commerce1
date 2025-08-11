@@ -57,42 +57,6 @@ public class CouponEntity extends BaseEntity {
         this.expiredAt = expiredAt;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public CouponType getType() {
-        return type;
-    }
-
-    public Long getDiscountValue() {
-        return discountValue;
-    }
-
-    public Long getMinOrderAmount() {
-        return minOrderAmount;
-    }
-
-    public Long getMaxDiscountAmount() {
-        return maxDiscountAmount;
-    }
-
-    public ZonedDateTime getExpiredAt() {
-        return expiredAt;
-    }
-
-    public ZonedDateTime getUsedAt() {
-        return usedAt;
-    }
-
     public boolean isUsed() {
         return isUsed;
     }
@@ -139,13 +103,17 @@ public class CouponEntity extends BaseEntity {
         return discount;
     }
 
-    public void use() {
+    public void use(Long orderAmount) {
         if (isUsed) {
             throw new IllegalStateException("이미 사용된 쿠폰입니다.");
         }
         
         if (isExpired()) {
             throw new IllegalStateException("만료된 쿠폰입니다.");
+        }
+
+        if (minOrderAmount != null && orderAmount < minOrderAmount) {
+            throw new IllegalStateException("최소 주문 금액을 만족하지 않습니다.");
         }
         
         this.isUsed = true;
@@ -156,4 +124,4 @@ public class CouponEntity extends BaseEntity {
                                     Long minOrderAmount, Long maxDiscountAmount, ZonedDateTime expiredAt) {
         return new CouponEntity(userId, name, type, discountValue, minOrderAmount, maxDiscountAmount, expiredAt);
     }
-} 
+}
