@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"ref_user_id", "ref_product_id"})
+        @UniqueConstraint(columnNames = {"user_id", "product_id"})
 })
 public class LikeEntity extends BaseEntity {
 
