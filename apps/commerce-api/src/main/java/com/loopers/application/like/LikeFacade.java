@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class LikeFacade {
@@ -53,5 +55,16 @@ public class LikeFacade {
         likeService.removeLike(userId, productId);
         product.decrementLikes();
         productService.save(product);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LikeInfo> getLikedProducts(Long userId) {
+        if (!userService.existsById(userId)) {
+            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다.");
+        }
+        
+        return likeService.findByUserId(userId).stream()
+                .map(LikeInfo::from)
+                .toList();
     }
 }

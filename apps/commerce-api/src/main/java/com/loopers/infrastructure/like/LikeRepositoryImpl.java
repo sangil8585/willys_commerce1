@@ -5,6 +5,7 @@ import com.loopers.domain.like.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -26,5 +27,10 @@ public class LikeRepositoryImpl implements LikeRepository {
     @Override
     public void delete(LikeEntity like) {
         likeJpaRepository.delete(like);
+    }
+
+    @Override
+    public List<LikeEntity> findByUserId(Long userId) {
+        return likeJpaRepository.findByUserId(userId);
     }
 }
