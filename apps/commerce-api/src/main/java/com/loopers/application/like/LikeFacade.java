@@ -31,10 +31,12 @@ public class LikeFacade {
         ProductEntity product = productService.findById(createCommand.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
 
+        // 멱등성을 위해 이미 존재하는지 확인
         boolean isNewLike = !likeService.existsByUserIdAndProductId(createCommand.userId(), createCommand.productId());
 
         LikeEntity likeEntity = likeService.createLike(createCommand);
         
+        // 비정규화된 likes 카운트 업데이트
         if (isNewLike) {
             product.incrementLikes();
             productService.save(product);
@@ -52,7 +54,10 @@ public class LikeFacade {
         ProductEntity product = productService.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
         
+        // 좋아요 삭제
         likeService.removeLike(userId, productId);
+        
+        // 비정규화된 likes 카운트 업데이트
         product.decrementLikes();
         productService.save(product);
     }
@@ -66,5 +71,36 @@ public class LikeFacade {
         return likeService.findByUserId(userId).stream()
                 .map(LikeInfo::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isLikedByUser(Long userId, Long productId) {
+        if (!userService.existsById(userId)) {
+            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다.");
+        }
+        
+        if (!productService.existsById(productId)) {
+            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다.");
+        }
+        
+        return likeService.existsByUserIdAndProductId(userId, productId);
+    }
+
+    @Transactional(readOnly = true)
+    public long getProductLikeCount(Long productId) {
+        if (!productService.existsById(productId)) {
+            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다.");
+        }
+        
+        return likeService.countByProductId(productId);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserLikeCount(Long userId) {
+        if (!userService.existsById(userId)) {
+            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다.");
+        }
+        
+        return likeService.countByUserId(userId);
     }
 }

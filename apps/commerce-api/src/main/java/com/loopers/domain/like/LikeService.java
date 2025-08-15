@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -17,6 +18,11 @@ public class LikeService {
     @Transactional(readOnly = true)
     public boolean existsByUserIdAndProductId(Long userId, Long productId) {
         return likeRepository.findByUserIdAndProductId(userId, productId).isPresent();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<LikeEntity> findByUserIdAndProductId(Long userId, Long productId) {
+        return likeRepository.findByUserIdAndProductId(userId, productId);
     }
 
     @Transactional
@@ -40,5 +46,20 @@ public class LikeService {
     @Transactional(readOnly = true)
     public List<LikeEntity> findByUserId(Long userId) {
         return likeRepository.findByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LikeEntity> findByProductId(Long productId) {
+        return likeRepository.findByProductId(productId);
+    }
+
+    @Transactional(readOnly = true)
+    public long countByProductId(Long productId) {
+        return likeRepository.countByProductId(productId);
+    }
+
+    @Transactional(readOnly = true)
+    public long countByUserId(Long userId) {
+        return likeRepository.countByUserId(userId);
     }
 }

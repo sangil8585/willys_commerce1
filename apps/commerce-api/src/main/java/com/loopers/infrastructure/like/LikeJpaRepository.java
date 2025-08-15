@@ -15,4 +15,14 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity, Long> {
     
     @Query("SELECT l FROM LikeEntity l WHERE l.userId = :userId")
     List<LikeEntity> findByUserId(@Param("userId") Long userId);
+    
+    // 비정규화를 위한 추가 메서드들
+    @Query("SELECT l FROM LikeEntity l WHERE l.productId = :productId")
+    List<LikeEntity> findByProductId(@Param("productId") Long productId);
+    
+    @Query("SELECT COUNT(l) FROM LikeEntity l WHERE l.productId = :productId")
+    long countByProductId(@Param("productId") Long productId);
+    
+    @Query("SELECT COUNT(l) FROM LikeEntity l WHERE l.userId = :userId")
+    long countByUserId(@Param("userId") Long userId);
 }
