@@ -1,5 +1,6 @@
 package com.loopers.application.like;
 
+import com.loopers.application.product.ProductFacade;
 import com.loopers.domain.like.LikeCommand;
 import com.loopers.domain.like.LikeEntity;
 import com.loopers.domain.like.LikeService;
@@ -21,6 +22,7 @@ public class LikeFacade {
     private final UserService userService;
     private final ProductService productService;
     private final LikeService likeService;
+    private final ProductFacade productFacade;
 
     @Transactional
     public LikeInfo like(LikeCommand.Create createCommand) {
@@ -40,6 +42,9 @@ public class LikeFacade {
         if (isNewLike) {
             product.incrementLikes();
             productService.save(product);
+            
+            // 상품 캐시 무효화
+            productFacade.evictProductCacheForLikes(createCommand.productId());
         }
         
         return LikeInfo.from(likeEntity);
@@ -60,6 +65,9 @@ public class LikeFacade {
         // 비정규화된 likes 카운트 업데이트
         product.decrementLikes();
         productService.save(product);
+        
+        // 상품 캐시 무효화
+        productFacade.evictProductCacheForLikes(productId);
     }
 
     @Transactional(readOnly = true)
