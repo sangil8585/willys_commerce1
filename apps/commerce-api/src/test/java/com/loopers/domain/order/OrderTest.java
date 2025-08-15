@@ -26,7 +26,7 @@ public class OrderTest {
                     OrderCommand.OrderItem.of(1L, 2, 1000L),
                     OrderCommand.OrderItem.of(2L, 1, 1000L)
             );
-            OrderCommand.Create command = new OrderCommand.Create(1L, items);
+            OrderCommand.Create command = OrderCommand.Create.of(1L, items);
 
             // when
             OrderEntity order = OrderEntity.from(command);
@@ -41,7 +41,7 @@ public class OrderTest {
         @Test
         void 주문아이템_없을경우_생성실패() {
             // given
-            OrderCommand.Create command = new OrderCommand.Create(1L, List.of());
+            OrderCommand.Create command = OrderCommand.Create.of(1L, List.of());
 
             // when
             CoreException exception = assertThrows(CoreException.class, () -> OrderEntity.from(command));
@@ -54,7 +54,7 @@ public class OrderTest {
         @Test
         void 주문아이템_null일경우_생성실패() {
             // given
-            OrderCommand.Create command = new OrderCommand.Create(1L, null);
+            OrderCommand.Create command = OrderCommand.Create.of(1L, null);
 
             // when
             CoreException exception = assertThrows(CoreException.class, () -> OrderEntity.from(command));
@@ -70,7 +70,7 @@ public class OrderTest {
             List<OrderCommand.OrderItem> items = List.of(
                     OrderCommand.OrderItem.of(1L, 0, 1000L)
             );
-            OrderCommand.Create command = new OrderCommand.Create(1L, items);
+            OrderCommand.Create command = OrderCommand.Create.of(1L, items);
 
             // when
             CoreException exception = assertThrows(CoreException.class, () -> OrderEntity.from(command));

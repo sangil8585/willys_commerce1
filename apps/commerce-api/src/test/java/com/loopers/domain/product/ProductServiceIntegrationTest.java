@@ -55,12 +55,14 @@ public class ProductServiceIntegrationTest {
         BrandEntity brand5 = brandService.create("폴로");
 
         ProductCommand.Create product1 = new ProductCommand.Create("메종키츠네 티셔츠", brand1.getId(), 15000L, 10L, 1L);
+        ProductCommand.Create product1_2 = new ProductCommand.Create("메종키츠네 후드", brand1.getId(), 25000L, 5L, 2L);
         ProductCommand.Create product2 = new ProductCommand.Create("APC 티셔츠", brand2.getId(), 25000L, 5L, 4L);
         ProductCommand.Create product3 = new ProductCommand.Create("지오다노 티셔츠", brand3.getId(), 3000L, 20L, 3L);
         ProductCommand.Create product4 = new ProductCommand.Create("코닥 티셔츠", brand4.getId(), 1200L, 8L, 5L);
         ProductCommand.Create product5 = new ProductCommand.Create("폴로 티셔츠", brand5.getId(), 20000L, 15L, 10L);
 
         productFacade.createProduct(product1);
+        productFacade.createProduct(product1_2);
         productFacade.createProduct(product2);
         productFacade.createProduct(product3);
         productFacade.createProduct(product4);
@@ -162,7 +164,7 @@ public class ProductServiceIntegrationTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getContent()).hasSize(3);
-            assertThat(result.getTotalElements()).isEqualTo(5);
+            assertThat(result.getTotalElements()).isEqualTo(6);
             assertThat(result.getTotalPages()).isEqualTo(2);
             assertThat(result.isFirst()).isTrue();
             assertThat(result.hasNext()).isTrue();
@@ -173,14 +175,14 @@ public class ProductServiceIntegrationTest {
         void 가격_낮은순_정렬_조회() {
             // given
             ProductCriteria criteria = ProductCriteria.orderByPrice(true);
-            Pageable pageable = PageRequest.of(0, 5);
+            Pageable pageable = PageRequest.of(0, 6);
 
             // when
             Page<ProductInfo> result = productFacade.findProducts(criteria, pageable);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getContent()).hasSize(5);
+            assertThat(result.getContent()).hasSize(6);
 
             // 가격이 오름차순으로 정렬되었는지 확인
             List<ProductInfo> products = result.getContent();
@@ -193,14 +195,14 @@ public class ProductServiceIntegrationTest {
         void 가격_높은순_정렬_조회() {
             // given
             ProductCriteria criteria = ProductCriteria.orderByPrice(false);
-            Pageable pageable = PageRequest.of(0, 5);
+            Pageable pageable = PageRequest.of(0, 6);
 
             // when
             Page<ProductInfo> result = productFacade.findProducts(criteria, pageable);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getContent()).hasSize(5);
+            assertThat(result.getContent()).hasSize(6);
 
             // 가격이 내림차순으로 정렬되었는지 확인
             List<ProductInfo> products = result.getContent();
@@ -254,7 +256,7 @@ public class ProductServiceIntegrationTest {
 
             // then
             assertThat(firstPageResult.getContent()).hasSize(2);
-            assertThat(firstPageResult.getTotalElements()).isEqualTo(5);
+            assertThat(firstPageResult.getTotalElements()).isEqualTo(6);
             assertThat(firstPageResult.getTotalPages()).isEqualTo(3);
             assertThat(firstPageResult.isFirst()).isTrue();
             assertThat(firstPageResult.isLast()).isFalse();

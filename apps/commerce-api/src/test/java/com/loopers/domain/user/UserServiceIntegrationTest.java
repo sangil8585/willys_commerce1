@@ -112,17 +112,18 @@ public class UserServiceIntegrationTest {
             assertEquals(createCommand.email(), result.email());
         }
 
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.")
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, CoreException이 발생한다.")
         @Test
-        void 아이디가_존재하지않으면_null반환() {
+        void 아이디가_존재하지않으면_CoreException_발생() {
             // given
             String nonExist = "nonExist";
 
-            // when
-            UserInfo result = userFacade.findByUserId(nonExist);
+            // when & then
+            CoreException coreException = assertThrows(CoreException.class, () ->
+                    userFacade.findByUserId(nonExist));
 
-            // then
-            assertNull(result);
+            assertThat(coreException.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+            assertThat(coreException.getMessage()).isEqualTo("존재하지 않는 사용자입니다.");
         }
     }
 

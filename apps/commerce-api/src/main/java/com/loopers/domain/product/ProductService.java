@@ -8,7 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -39,15 +42,23 @@ public class ProductService {
     }
 
     @Transactional
-    public void validateAndDeductStock(Long productId, Integer quantity) {
-        ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
-        
-        if (product.getStock() < quantity) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
+    public void deductStock(Map<Long, Integer> itemQuantityMap) {
+        // 비관적 락으로 상품 조회
+        List<Long> ids = itemQuantityMap.keySet().stream().toList();
+        List<ProductEntity> products = productRepository.findByIdsWithLock(ids);
+        if(ids.size() != products.size()) {
+            throw new CoreException(ErrorType.NOT_FOUND, "상품을 찾지 못했습니다");
         }
-        
-        product.deductStock(quantity);
-        productRepository.save(product);
+
+        for(ProductEntity product : products) {
+            product.deductStock(itemQuantityMap.get(product.getId()));
+        }
+
+        productRepository.save(products);
+    }
+    
+    @Transactional
+    public Optional<ProductEntity> findByIdWithLockForLikes(Long productId) {
+        return productRepository.findByIdWithLockForLikes(productId);
     }
 }

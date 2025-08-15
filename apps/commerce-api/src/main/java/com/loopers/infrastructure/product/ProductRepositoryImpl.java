@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -22,6 +23,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public List<ProductEntity> save(List<ProductEntity> products) {
+        return productJpaRepository.saveAll(products);
+    }
+
+    @Override
     public Page<ProductEntity> find(ProductCriteria criteria, Pageable pageable) {
         return productJpaRepository.findAll(criteria, pageable);
     }
@@ -29,5 +35,20 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Optional<ProductEntity> findById(Long productId) {
         return productJpaRepository.findById(productId);
+    }
+    
+    @Override
+    public Optional<ProductEntity> findByIdWithLock(Long productId) {
+        return productJpaRepository.findByIdWithLock(productId);
+    }
+    
+    @Override
+    public Optional<ProductEntity> findByIdWithLockForLikes(Long productId) {
+        return productJpaRepository.findByIdWithLockForLikes(productId);
+    }
+
+    @Override
+    public List<ProductEntity> findByIdsWithLock(List<Long> ids) {
+        return productJpaRepository.findByIdsWithLock(ids);
     }
 }
