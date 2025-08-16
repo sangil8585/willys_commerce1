@@ -36,6 +36,11 @@ public class ProductService {
         return productRepository.findById(productId);
     }
     
+    @Transactional(readOnly = true)
+    public boolean existsById(Long productId) {
+        return productRepository.existsById(productId);
+    }
+    
     @Transactional
     public ProductEntity save(ProductEntity product) {
         return productRepository.save(product);

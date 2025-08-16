@@ -28,6 +28,10 @@ public record ProductCriteria(
         return new ProductCriteria(List.of(new OrderByPrice(ascending)));
     }
 
+    public static ProductCriteria orderByLikeCount() {
+        return new ProductCriteria(List.of(new OrderByLikeCount()));
+    }
+
     public static ProductCriteria nameContains(String name) {
         return new ProductCriteria(List.of(new NameContains(name)));
     }

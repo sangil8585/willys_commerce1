@@ -1,6 +1,7 @@
 package com.loopers.application.product;
 
 import com.loopers.domain.product.ProductEntity;
+import java.io.Serializable;
 
 public record ProductInfo(
         Long id,
@@ -10,7 +11,7 @@ public record ProductInfo(
         Long price,
         Long stock,
         Long likes
-) {
+) implements Serializable {
     public static ProductInfo from(ProductEntity productEntity, String brandName) {
         return new ProductInfo(
                 productEntity.getId(),
