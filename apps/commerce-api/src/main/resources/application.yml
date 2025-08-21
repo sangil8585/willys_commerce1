@@ -24,6 +24,13 @@ spring:
       - logging.yml
       - monitoring.yml
 
+# PG Simulator 설정
+pg-simulator:
+  base-url: http://localhost:8081
+  user-id: 135135
+  connection-timeout: 5000
+  read-timeout: 10000
+
 springdoc:
   use-fqn: true
   swagger-ui:
