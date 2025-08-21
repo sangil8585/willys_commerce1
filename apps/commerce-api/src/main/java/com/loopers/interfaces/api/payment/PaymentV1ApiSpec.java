@@ -27,7 +27,7 @@ public interface PaymentV1ApiSpec {
             summary = "결제 정보 확인",
             description = "결제 ID로 결제 정보를 조회합니다."
     )
-    PaymentInfoResponse getPaymentInfo(
+    ApiResponse<PaymentInfoResponse> getPaymentInfo(
             @Schema(name = "사용자 ID", description = "결제 정보를 조회하는 사용자의 ID")
             @RequestHeader("X-USER-ID") String userId,
             @Schema(name = "결제 ID", description = "조회할 결제의 ID")
@@ -38,7 +38,7 @@ public interface PaymentV1ApiSpec {
             summary = "주문별 결제 정보 조회",
             description = "주문 ID로 연관된 결제 정보를 조회합니다."
     )
-    PaymentInfoResponse getPaymentByOrderId(
+    ApiResponse<PaymentInfoResponse> getPaymentByOrderId(
             @Schema(name = "사용자 ID", description = "결제 정보를 조회하는 사용자의 ID")
             @RequestHeader("X-USER-ID") String userId,
             @Schema(name = "주문 ID", description = "조회할 주문의 ID")

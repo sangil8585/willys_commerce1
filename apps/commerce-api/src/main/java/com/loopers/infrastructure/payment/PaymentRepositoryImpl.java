@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements PaymentRepository {
-
     private final PaymentJpaRepository paymentJpaRepository;
 
     @Override
@@ -42,7 +41,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
     @Override
     public List<PaymentEntity> findPendingPayments() {
-        return paymentJpaRepository.findByStatusIn(List.of(PaymentStatus.PENDING, PaymentStatus.PROCESSING));
+        return paymentJpaRepository.findPendingPayments();
     }
 
     @Override
