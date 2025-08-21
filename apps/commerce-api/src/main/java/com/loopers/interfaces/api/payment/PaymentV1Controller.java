@@ -36,7 +36,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
     
     @GetMapping("/{paymentId}")
     @Override
-    public PaymentV1Dto.PaymentInfoResponse getPaymentInfo(
+    public ApiResponse<PaymentV1Dto.PaymentInfoResponse> getPaymentInfo(
             @RequestHeader("X-USER-ID") String userId,
             @PathVariable String paymentId
     ) {
@@ -46,7 +46,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
     
     @GetMapping
     @Override
-    public PaymentV1Dto.PaymentInfoResponse getPaymentByOrderId(
+    public ApiResponse<PaymentV1Dto.PaymentInfoResponse> getPaymentByOrderId(
             @RequestHeader("X-USER-ID") String userId,
             @RequestParam String orderId
     ) {
