@@ -56,7 +56,7 @@ public class PaymentEntity extends BaseEntity {
         payment.userId = command.userId();
         payment.orderId = command.orderId();
         payment.cardType = command.cardType();
-        payment.cardNo = maskCardNumber(command.cardNo());
+        payment.cardNo = command.cardNo();
         payment.amount = command.amount();
         payment.callbackUrl = command.callbackUrl();
         payment.status = PaymentStatus.PENDING;
@@ -85,12 +85,7 @@ public class PaymentEntity extends BaseEntity {
         }
     }
     
-    private static String maskCardNumber(String cardNo) {
-        if (cardNo == null || cardNo.length() < 8) {
-            return cardNo;
-        }
-        return cardNo.substring(0, 4) + "-****-****-" + cardNo.substring(cardNo.length() - 4);
-    }
+
     
     public void assignPaymentId(PaymentCommand.AssignPaymentId command) {
         if (this.paymentId != null) {

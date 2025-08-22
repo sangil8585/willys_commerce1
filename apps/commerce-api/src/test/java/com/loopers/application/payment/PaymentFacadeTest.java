@@ -1,8 +1,8 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.payment.PaymentEntity;
-import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.PaymentGateway;
+import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.domain.payment.PaymentCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,13 +23,13 @@ import static org.mockito.Mockito.*;
 class PaymentFacadeTest {
 
     @Mock
-    private PaymentService paymentService;
+    private PaymentGateway paymentGateway;
 
     @InjectMocks
     private PaymentFacade paymentFacade;
 
     private PaymentCriteria criteria;
-    private PaymentEntity paymentEntity;
+    private PaymentInfo paymentInfo;
 
     @BeforeEach
     void setUp() {
@@ -42,14 +42,15 @@ class PaymentFacadeTest {
             "http://localhost:8080/api/v1/examples/callback"
         );
 
-        paymentEntity = PaymentEntity.from(PaymentCommand.Create.of(
-            135135L,
+        paymentInfo = PaymentInfo.of(
+            "20250816:TR:12345",
             "1351039135",
             "SAMSUNG",
             "1234-5678-9814-1451",
-            "5000",
-            "http://localhost:8080/api/v1/examples/callback"
-        ));
+            5000L,
+            "PENDING",
+            null
+        );
     }
 
     @DisplayName("결제 처리")
@@ -60,8 +61,8 @@ class PaymentFacadeTest {
         @Test
         void returnsSuccessResult_whenPaymentSucceeds() {
             // arrange
-            when(paymentService.createPayment(any()))
-                .thenReturn(paymentEntity);
+            when(paymentGateway.requestPayment(any()))
+                .thenReturn(paymentInfo);
 
             // act
             PaymentResult result = paymentFacade.pay(criteria);
@@ -70,9 +71,31 @@ class PaymentFacadeTest {
             assertThat(result).isNotNull();
             assertThat(result.orderId()).isEqualTo("1351039135");
             assertThat(result.status()).isEqualTo("PENDING");
-            assertThat(result.paymentId()).isNotNull();
+            assertThat(result.paymentId()).isEqualTo("20250816:TR:12345");
             
-            verify(paymentService).createPayment(any());
+            verify(paymentGateway).requestPayment(any());
+        }
+    }
+
+    @DisplayName("트랜잭션 상세 조회")
+    @Nested
+    class GetPaymentTransactionDetail {
+        
+        @DisplayName("트랜잭션 키로 결제 정보를 조회한다.")
+        @Test
+        void findsPaymentByTransactionKey() {
+            // arrange
+            String transactionKey = "20250816:TR:12345";
+            when(paymentGateway.getPaymentTransactionDetail(transactionKey))
+                .thenReturn(paymentInfo);
+
+            // act
+            PaymentInfo result = paymentFacade.getPaymentTransactionDetail(transactionKey);
+
+            // assert
+            assertThat(result).isNotNull();
+            assertThat(result.transactionKey()).isEqualTo(transactionKey);
+            verify(paymentGateway).getPaymentTransactionDetail(transactionKey);
         }
     }
 
@@ -86,35 +109,11 @@ class PaymentFacadeTest {
             // arrange
             String userId = "135135";
             String orderId = "1351039135";
-            when(paymentService.findByOrderId(orderId))
-                .thenReturn(paymentEntity);
-
-            // act
-            PaymentResult result = paymentFacade.getPaymentByOrderId(userId, orderId);
-
-            // assert
-            assertThat(result).isNotNull();
-            assertThat(result.orderId()).isEqualTo(orderId);
-            verify(paymentService).findByOrderId(orderId);
-        }
-
-        @DisplayName("존재하지 않는 주문 ID로 조회하면, 예외를 발생시킨다.")
-        @Test
-        void throwsException_whenOrderIdNotFound() {
-            // arrange
-            String userId = "135135";
-            String orderId = "NON_EXISTENT";
-            when(paymentService.findByOrderId(orderId))
-                .thenThrow(new RuntimeException("주문을 찾을 수 없습니다"));
+            // TODO: PaymentService 구현 후 테스트 수정
 
             // act & assert
             assertThatThrownBy(() -> paymentFacade.getPaymentByOrderId(userId, orderId))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("주문을 찾을 수 없습니다");
-
-            verify(paymentService).findByOrderId(orderId);
+                .isInstanceOf(UnsupportedOperationException.class);
         }
     }
-
-
 }

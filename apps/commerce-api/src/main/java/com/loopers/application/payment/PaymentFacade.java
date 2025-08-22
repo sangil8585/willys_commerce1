@@ -1,7 +1,9 @@
 package com.loopers.application.payment;
 
-import com.loopers.infrastructure.payment.PgPaymentService;
-import com.loopers.infrastructure.payment.dto.PgPaymentRequest;
+import com.loopers.domain.payment.PaymentGateway;
+import com.loopers.domain.payment.PaymentEntity;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,27 +11,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class PaymentFacade {
-    
-    private final PgPaymentService pgPaymentService;
+
+    private final PaymentGateway paymentGateway;
     
     @Transactional
     public PaymentResult pay(PaymentCriteria criteria) {
         try {
-            // PG 결제 요청
-            PgPaymentRequest pgRequest = PgPaymentRequest.of(
-                criteria.orderId(),
-                criteria.cardType(),
-                criteria.cardNo(),
-                criteria.amount(),
-                criteria.callbackUrl()
+            // 도메인 엔티티 생성
+            PaymentEntity payment = PaymentEntity.from(
+                PaymentCommand.Create.of(
+                    Long.valueOf(criteria.userId()),
+                    criteria.orderId(),
+                    criteria.cardType(),
+                    criteria.cardNo(),
+                    criteria.amount(),
+                    criteria.callbackUrl()
+                )
             );
             
-            var pgResponse = pgPaymentService.requestPayment(pgRequest);
+            // PG 결제 요청
+            PaymentInfo paymentInfo = paymentGateway.requestPayment(payment);
             
             return new PaymentResult(
                 criteria.orderId(),
-                pgResponse.transactionKey(),
-                pgResponse.status()
+                paymentInfo.transactionKey(),
+                paymentInfo.status()
             );
             
         } catch (Exception e) {
@@ -48,8 +54,13 @@ public class PaymentFacade {
     }
     
     @Transactional(readOnly = true)
+    public PaymentInfo getPaymentTransactionDetail(String transactionKey) {
+        return paymentGateway.getPaymentTransactionDetail(transactionKey);
+    }
+    
+    @Transactional(readOnly = true)
     public PaymentResult getPaymentByOrderId(String userId, String orderId) {
-        // TODO: 실제 구현에서는 PaymentService를 통해 결제 정보를 조회
+        // 실제 구현에서는 PaymentService를 통해 결제 정보를 조회
         throw new UnsupportedOperationException("아직 구현되지 않았습니다.");
     }
 }

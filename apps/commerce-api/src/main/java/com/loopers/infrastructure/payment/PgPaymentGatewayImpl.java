@@ -1,5 +1,8 @@
 package com.loopers.infrastructure.payment;
 
+import com.loopers.domain.payment.PaymentEntity;
+import com.loopers.domain.payment.PaymentGateway;
+import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.infrastructure.payment.dto.PgPaymentRequest;
 import com.loopers.infrastructure.payment.dto.PgPaymentResponse;
 import com.loopers.infrastructure.payment.dto.PgTransactionDetailResponse;
@@ -12,41 +15,65 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class PgPaymentServiceImpl implements PgPaymentService {
+public class PgPaymentGatewayImpl implements PaymentGateway {
 
-    private final RestTemplate pgPaymentRestTemplate;
+    private final RestTemplate pgPaymentGatewayRestTemplate;
     
-    @Value("${pg.base-url:http://localhost:8081}")
+    @Value("${pg-simulator.base-url:http://localhost:8081}")
     private String pgBaseUrl;
     
-    @Value("${pg.default-user-id:135135}")
+    @Value("${pg-simulator.user-id:135135}")
     private String defaultUserId;
 
     @Override
-    public PgPaymentResponse requestPayment(PgPaymentRequest request) {
+    public PaymentInfo requestPayment(PaymentEntity payment) {
         try {
             String url = pgBaseUrl + "/api/v1/payments";
+            
+            // Infrastructure DTO로 변환
+            PgPaymentRequest request = PgPaymentRequest.of(
+                payment.getOrderId(),
+                payment.getCardType(),
+                payment.getCardNo(),
+                String.valueOf(payment.getAmount()),
+                payment.getCallbackUrl()
+            );
+            
+            log.info("PG 결제 요청 시작: {}", url);
             
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-User-Id", defaultUserId);
             
             HttpEntity<PgPaymentRequest> entity = new HttpEntity<>(request, headers);
             
-            ResponseEntity<PgPaymentResponse> response = pgPaymentRestTemplate.exchange(
+            ResponseEntity<PgPaymentResponse> response = pgPaymentGatewayRestTemplate.exchange(
                 url, 
                 HttpMethod.POST, 
                 entity, 
                 PgPaymentResponse.class
             );
             
-            return response.getBody();
+            if (response.getBody() == null) {
+                throw new CoreException(ErrorType.INTERNAL_ERROR, "PG 응답 바디가 null입니다.");
+            }
+            
+            // Infrastructure DTO를 도메인 모델로 변환
+            return PaymentInfo.of(
+                response.getBody().transactionKey(),
+                payment.getOrderId(),
+                payment.getCardType(),
+                payment.getCardNo(),
+                Long.parseLong(payment.getAmount()),
+                response.getBody().status(),
+                response.getBody().reason()
+            );
             
         } catch (ResourceAccessException e) {
             log.error("PG 시스템 연결 실패: {}", e.getMessage());
@@ -58,7 +85,7 @@ public class PgPaymentServiceImpl implements PgPaymentService {
     }
 
     @Override
-    public PgTransactionDetailResponse getTransactionDetail(String transactionKey) {
+    public PaymentInfo getPaymentTransactionDetail(String transactionKey) {
         try {
             String url = pgBaseUrl + "/api/v1/payments/" + transactionKey;
             
@@ -67,14 +94,28 @@ public class PgPaymentServiceImpl implements PgPaymentService {
             
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             
-            ResponseEntity<PgTransactionDetailResponse> response = pgPaymentRestTemplate.exchange(
+            ResponseEntity<PgTransactionDetailResponse> response = pgPaymentGatewayRestTemplate.exchange(
                 url, 
                 HttpMethod.GET, 
                 entity, 
                 PgTransactionDetailResponse.class
             );
             
-            return response.getBody();
+            if (response.getBody() == null) {
+                throw new CoreException(ErrorType.INTERNAL_ERROR, "PG 트랜잭션 상세 응답이 null입니다.");
+            }
+            
+            // Infrastructure DTO를 도메인 모델로 변환
+            PgTransactionDetailResponse pgResponse = response.getBody();
+            return PaymentInfo.of(
+                pgResponse.transactionKey(),
+                pgResponse.orderId(),
+                pgResponse.cardType(),
+                pgResponse.cardNo(),
+                pgResponse.amount(),
+                pgResponse.status(),
+                pgResponse.reason()
+            );
             
         } catch (Exception e) {
             log.error("PG 트랜잭션 상세 조회 중 오류 발생: {}", e.getMessage());

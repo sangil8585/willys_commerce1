@@ -1,6 +1,7 @@
 package com.loopers.infrastructure.payment;
 
-import com.loopers.infrastructure.payment.dto.PgPaymentRequest;
+import com.loopers.domain.payment.PaymentEntity;
+import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.infrastructure.payment.dto.PgPaymentResponse;
 import com.loopers.infrastructure.payment.dto.PgTransactionDetailResponse;
 import com.loopers.support.error.CoreException;
@@ -23,29 +24,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import com.loopers.domain.payment.PaymentCommand;
 
 @ExtendWith(MockitoExtension.class)
-class PgPaymentServiceTest {
+class PgPaymentGatewayImplTest {
 
     @Mock
-    private RestTemplate pgPaymentRestTemplate;
+    private RestTemplate pgPaymentGatewayRestTemplate;
 
     @InjectMocks
-    private PgPaymentServiceImpl pgPaymentService;
+    private PgPaymentGatewayImpl pgPaymentGateway;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(pgPaymentService, "pgBaseUrl", "http://localhost:8082");
-        ReflectionTestUtils.setField(pgPaymentService, "defaultUserId", "135135");
+        // Mock RestTemplate 설정
+        ReflectionTestUtils.setField(pgPaymentGateway, "pgBaseUrl", "http://localhost:8082");
+        ReflectionTestUtils.setField(pgPaymentGateway, "defaultUserId", "135135");
+        
+        // Mock RestTemplate 직접 주입
+        ReflectionTestUtils.setField(pgPaymentGateway, "pgPaymentGatewayRestTemplate", pgPaymentGatewayRestTemplate);
     }
 
     @Test
     @DisplayName("PG 결제 요청 성공")
     void pg_결제요청_성공() {
         // given
-        PgPaymentRequest request = PgPaymentRequest.of(
-            "1351039135", "SAMSUNG", "1234-5678-9814-1451", "5000", 
-            "http://localhost:8080/api/v1/examples/callback"
+        PaymentEntity payment = PaymentEntity.from(
+            PaymentCommand.Create.of(
+                1L, "1351039135", "SAMSUNG", "1234-5678-9814-1451", 
+                "5000", "http://localhost:8080/api/v1/examples/callback"
+            )
         );
 
         PgPaymentResponse expectedResponse = PgPaymentResponse.builder()
@@ -54,7 +62,7 @@ class PgPaymentServiceTest {
             .reason(null)
             .build();
 
-        when(pgPaymentRestTemplate.exchange(
+        when(pgPaymentGatewayRestTemplate.exchange(
             eq("http://localhost:8082/api/v1/payments"),
             eq(HttpMethod.POST),
             any(HttpEntity.class),
@@ -62,24 +70,27 @@ class PgPaymentServiceTest {
         )).thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
         // when
-        PgPaymentResponse result = pgPaymentService.requestPayment(request);
+        PaymentInfo result = pgPaymentGateway.requestPayment(payment);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.transactionKey()).isEqualTo("20250816:TR:9577c5");
         assertThat(result.status()).isEqualTo("PENDING");
+        assertThat(result.orderId()).isEqualTo("1351039135");
     }
 
     @Test
     @DisplayName("PG 결제 요청 중 연결 오류 발생")
     void pg_결제요청시_연결오류발생() {
         // given
-        PgPaymentRequest request = PgPaymentRequest.of(
-            "1351039135", "SAMSUNG", "1234-5678-9814-1451", "5000", 
-            "http://localhost:8080/api/v1/examples/callback"
+        PaymentEntity payment = PaymentEntity.from(
+            PaymentCommand.Create.of(
+                1L, "1351039135", "SAMSUNG", "1234-5678-9814-1451", 
+                "5000", "http://localhost:8080/api/v1/examples/callback"
+            )
         );
 
-        when(pgPaymentRestTemplate.exchange(
+        when(pgPaymentGatewayRestTemplate.exchange(
             anyString(),
             any(HttpMethod.class),
             any(HttpEntity.class),
@@ -87,28 +98,28 @@ class PgPaymentServiceTest {
         )).thenThrow(new ResourceAccessException("Connection refused"));
 
         // when & then
-        assertThatThrownBy(() -> pgPaymentService.requestPayment(request))
+        assertThatThrownBy(() -> pgPaymentGateway.requestPayment(payment))
             .isInstanceOf(CoreException.class)
             .hasMessageContaining("PG 시스템 연결에 실패했습니다.");
     }
 
     @Test
     @DisplayName("PG 트랜잭션 상세 조회 성공")
-    void getTransactionDetail_Success() {
+    void getPaymentTransactionDetail_Success() {
         // given
         String transactionKey = "20250816:TR:9577c5";
         
         PgTransactionDetailResponse expectedResponse = PgTransactionDetailResponse.builder()
-            .transactionKey(transactionKey)
+            .transactionKey("20250816:TR:9577c5")
             .orderId("1351039135")
             .cardType("SAMSUNG")
             .cardNo("1234-5678-9814-1451")
             .amount(5000L)
-            .status("SUCCESS")
+            .status("approved")
             .reason(null)
             .build();
 
-        when(pgPaymentRestTemplate.exchange(
+        when(pgPaymentGatewayRestTemplate.exchange(
             eq("http://localhost:8082/api/v1/payments/" + transactionKey),
             eq(HttpMethod.GET),
             any(HttpEntity.class),
@@ -116,11 +127,13 @@ class PgPaymentServiceTest {
         )).thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
         // when
-        PgTransactionDetailResponse result = pgPaymentService.getTransactionDetail(transactionKey);
+        PaymentInfo result = pgPaymentGateway.getPaymentTransactionDetail(transactionKey);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.transactionKey()).isEqualTo(transactionKey);
-        assertThat(result.status()).isEqualTo("SUCCESS");
+        assertThat(result.transactionKey()).isEqualTo("20250816:TR:9577c5");
+        assertThat(result.status()).isEqualTo("approved");
+        assertThat(result.orderId()).isEqualTo("1351039135");
+        assertThat(result.amount()).isEqualTo(5000L);
     }
 }

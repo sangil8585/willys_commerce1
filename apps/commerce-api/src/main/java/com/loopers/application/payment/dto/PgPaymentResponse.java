@@ -1,4 +1,4 @@
-package com.loopers.application.payment.pg;
+package com.loopers.application.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
