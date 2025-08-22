@@ -28,7 +28,12 @@ public enum PaymentStatus {
     /**
      * 결제 취소
      */
-    CANCELLED("결제 취소");
+    CANCELLED("결제 취소"),
+    
+    /**
+     * 아카이브됨 (오래된 결제 건)
+     */
+    ARCHIVED("아카이브됨");
     
     private final String description;
     
@@ -51,6 +56,13 @@ public enum PaymentStatus {
      * 결제가 최종 완료된 상태인지 확인
      */
     public boolean isFinalized() {
+        return this == COMPLETED || this == FAILED || this == CANCELLED;
+    }
+    
+    /**
+     * 결제가 아카이브 가능한 상태인지 확인
+     */
+    public boolean isArchivable() {
         return this == COMPLETED || this == FAILED || this == CANCELLED;
     }
 }
