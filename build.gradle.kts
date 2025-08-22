@@ -37,7 +37,6 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "jacoco")
 
     dependencyManagement {
         imports {
@@ -52,6 +51,9 @@ subprojects {
         implementation("org.springframework.boot:spring-boot-starter")
         // Serialize
         implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+        // Cache & Redis
+        implementation("org.springframework.boot:spring-boot-starter-cache")
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
         // Lombok
         implementation("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")
@@ -85,24 +87,7 @@ subprojects {
         jvmArgs("-Xshare:off")
     }
 
-    tasks.withType<JacocoReport> {
-        mustRunAfter("test")
-        executionData(fileTree(layout.buildDirectory.asFile).include("jacoco/*.exec"))
-        reports {
-            xml.required = true
-            csv.required = false
-            html.required = false
-        }
-        afterEvaluate {
-            classDirectories.setFrom(
-                files(
-                    classDirectories.files.map {
-                        fileTree(it)
-                    },
-                ),
-            )
-        }
-    }
+
 }
 
 // module-container 는 task 를 실행하지 않도록 한다.

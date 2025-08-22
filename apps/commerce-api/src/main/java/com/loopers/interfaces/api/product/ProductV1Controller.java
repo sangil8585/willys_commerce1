@@ -32,12 +32,17 @@ public class ProductV1Controller implements ProductV1ApiSpec {
         ProductCriteria criteria = switch (sort) {
             case "price_asc" -> ProductCriteria.orderByPrice(true);
             case "price_desc" -> ProductCriteria.orderByPrice(false);
+            case "likes" -> ProductCriteria.orderByLikeCount();
             case "latest" -> ProductCriteria.orderByCreatedAt(false);
             default -> ProductCriteria.orderByCreatedAt(false);
         };
 
         if (brandId != null) {
-            criteria = ProductCriteria.brandIdEquals(brandId);
+            // 기존 정렬 조건을 유지하면서 브랜드 ID 조건 추가
+            var existingCriteria = criteria.criteria();
+            var newCriteria = new java.util.ArrayList<>(existingCriteria);
+            newCriteria.add(new com.loopers.domain.product.ProductCriteria.BrandIdEquals(brandId));
+            criteria = new ProductCriteria(newCriteria);
         }
 
         var productInfoPage = productFacade.findProducts(criteria, pageable);

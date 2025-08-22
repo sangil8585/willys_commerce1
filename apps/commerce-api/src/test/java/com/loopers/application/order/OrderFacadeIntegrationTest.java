@@ -446,4 +446,68 @@ public class OrderFacadeIntegrationTest {
             assertThat(usedCoupon.isUsed()).isTrue();
         }
     }
+
+    /**
+     * - [x]  쿠폰 종류는 정액 / 정률로 구분되며, 각 적용 로직을 구현하였다.
+     */
+    @DisplayName("쿠폰 종류별 할인 적용 로직 테스트")
+    @Nested
+    class CouponDiscountLogicTest {
+
+        @DisplayName("정액 할인 쿠폰이 정상적으로 적용되어야 한다")
+        @Test
+        void 정액할인_쿠폰_적용_테스트() {
+            // given - 정액 할인 쿠폰 (1000원 할인)
+            Long fixedAmountCouponId = couponService.createCoupon(
+                userInfo.userId(),
+                "정액 할인 쿠폰",
+                CouponType.FIXED_AMOUNT,
+                1000L,  // 1000원 할인
+                1000L,  // 최소 주문 금액
+                1000L,  // 최대 할인 금액
+                ZonedDateTime.now().plusDays(1)
+            ).getId();
+
+            List<OrderCommand.OrderItem> items = List.of(
+                OrderCommand.OrderItem.of(testProduct1.getId(), 3, testProduct1.getPrice()) // 3000원
+            );
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, fixedAmountCouponId);
+
+            // when
+            OrderInfo orderInfo = orderFacade.createOrder(command);
+
+            // then - 최종 금액이 2000원이 되어야 함 (3000 - 1000)
+            assertThat(orderInfo.totalAmount()).isEqualTo(3000L);
+            assertThat(orderInfo.finalAmount()).isEqualTo(2000L);
+            assertThat(orderInfo.discountAmount()).isEqualTo(1000L);
+        }
+
+        @DisplayName("정률 할인 쿠폰이 정상적으로 적용되어야 한다")
+        @Test
+        void 정률할인_쿠폰_적용_테스트() {
+            // given - 정률 할인 쿠폰 (20% 할인)
+            Long percentageCouponId = couponService.createCoupon(
+                userInfo.userId(),
+                "정률 할인 쿠폰",
+                CouponType.PERCENTAGE,
+                20L,    // 20% 할인
+                1000L,  // 최소 주문 금액
+                2000L,  // 최대 할인 금액
+                ZonedDateTime.now().plusDays(1)
+            ).getId();
+
+            List<OrderCommand.OrderItem> items = List.of(
+                OrderCommand.OrderItem.of(testProduct2.getId(), 3, testProduct2.getPrice()) // 6000원
+            );
+            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, percentageCouponId);
+
+            // when
+            OrderInfo orderInfo = orderFacade.createOrder(command);
+
+            // then - 최종 금액이 4800원이 되어야 함 (6000 * 0.8)
+            assertThat(orderInfo.totalAmount()).isEqualTo(6000L);
+            assertThat(orderInfo.finalAmount()).isEqualTo(4800L);
+            assertThat(orderInfo.discountAmount()).isEqualTo(1200L);
+        }
+    }
 } 
