@@ -33,10 +33,6 @@ public class PaymentAdminController {
         }
     }
 
-    /**
-     * 배치 작업을 즉시 실행합니다.
-     * 정기 배치 작업을 기다리지 않고 즉시 상태 복구를 원할 때 사용합니다.
-     */
     @PostMapping("/batch/execute")
     public ApiResponse<Object> executeBatchImmediately() {
         try {
@@ -53,9 +49,6 @@ public class PaymentAdminController {
         }
     }
 
-    /**
-     * 오래된 결제 건들을 즉시 정리합니다.
-     */
     @PostMapping("/batch/cleanup")
     public ApiResponse<Object> executeCleanupImmediately() {
         try {

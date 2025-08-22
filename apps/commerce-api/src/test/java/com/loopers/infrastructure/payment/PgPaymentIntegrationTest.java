@@ -5,7 +5,6 @@ import com.loopers.domain.payment.PaymentEntity;
 import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.infrastructure.payment.dto.PgV1Dto;
 import com.loopers.interfaces.api.ApiResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +18,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PgPaymentGatewayImplIntegrationTest {
+class PgPaymentIntegrationTest {
 
     @Mock
     private PgV1FeignClient pgV1FeignClient;

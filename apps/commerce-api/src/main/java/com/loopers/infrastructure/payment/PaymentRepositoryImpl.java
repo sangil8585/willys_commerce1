@@ -6,6 +6,7 @@ import com.loopers.domain.payment.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +43,16 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     @Override
     public List<PaymentEntity> findPendingPayments() {
         return paymentJpaRepository.findPendingPayments();
+    }
+
+    @Override
+    public List<PaymentEntity> findPendingPaymentsOlderThan(ZonedDateTime threshold) {
+        return paymentJpaRepository.findPendingPaymentsOlderThan(threshold);
+    }
+
+    @Override
+    public List<PaymentEntity> findOldCompletedPayments(ZonedDateTime threshold) {
+        return paymentJpaRepository.findOldCompletedPayments(threshold);
     }
 
     @Override

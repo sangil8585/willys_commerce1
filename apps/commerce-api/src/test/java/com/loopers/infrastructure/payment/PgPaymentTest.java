@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import com.loopers.domain.payment.PaymentCommand;
 
 @ExtendWith(MockitoExtension.class)
-class PgPaymentGatewayImplTest {
+class PgPaymentTest {
 
     @Mock
     private PgV1FeignClient pgV1FeignClient;
