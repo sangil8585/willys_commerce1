@@ -1,0 +1,73 @@
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5000
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - com.loopers.support.error.CoreException
+      shared:
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: 1000
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        ignoreExceptions:
+          - com.loopers.support.error.CoreException
+      # PG 결제 전용 서킷브레이커 설정
+      pg-payment:
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 5
+        waitDurationInOpenState: 3000
+        failureRateThreshold: 30
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.HttpClientErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+          - feign.FeignException
+        ignoreExceptions:
+          - com.loopers.support.error.CoreException
+  timelimiter:
+    configs:
+      default:
+        cancelRunningFuture: true
+        timeoutDuration: 300
+      shared:
+        cancelRunningFuture: true
+        timeoutDuration: 1000
+      # PG 결제 전용 타임아웃 설정
+      pg-payment:
+        cancelRunningFuture: true
+        timeoutDuration: 5000  # 5초
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+      # PG 결제 전용 재시도 설정
+      pg-payment:
+        maxAttempts: 2
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - feign.FeignException

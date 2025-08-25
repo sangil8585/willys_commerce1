@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import com.loopers.support.error.PgPaymentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -28,6 +29,13 @@ public class ApiControllerAdvice {
     public ResponseEntity<ApiResponse<?>> handle(CoreException e) {
         log.warn("CoreException : {}", e.getCustomMessage() != null ? e.getCustomMessage() : e.getMessage(), e);
         return failureResponse(e.getErrorType(), e.getCustomMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handle(PgPaymentException e) {
+        log.error("PgPaymentException : {} - PG Error: {} - {}", 
+            e.getMessage(), e.getPgErrorCode(), e.getPgErrorMessage(), e);
+        return failureResponse(e.getErrorType(), e.getMessage());
     }
 
     @ExceptionHandler
@@ -61,24 +69,13 @@ public class ApiControllerAdvice {
         Throwable rootCause = e.getRootCause();
 
         if (rootCause instanceof InvalidFormatException invalidFormat) {
-            String fieldName = invalidFormat.getPath().stream()
+            String fieldPath = invalidFormat.getPath().stream()
                 .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
                 .collect(Collectors.joining("."));
-
-            String valueIndicationMessage = "";
-            if (invalidFormat.getTargetType().isEnum()) {
-                Class<?> enumClass = invalidFormat.getTargetType();
-                String enumValues = Arrays.stream(enumClass.getEnumConstants())
-                    .map(Object::toString)
-                    .collect(Collectors.joining(", "));
-                valueIndicationMessage = "사용 가능한 값 : [" + enumValues + "]";
-            }
-
-            String expectedType = invalidFormat.getTargetType().getSimpleName();
-            Object value = invalidFormat.getValue();
-
-            errorMessage = String.format("필드 '%s'의 값 '%s'이(가) 예상 타입(%s)과 일치하지 않습니다. %s",
-                fieldName, value, expectedType, valueIndicationMessage);
+            String value = invalidFormat.getValue() != null ? invalidFormat.getValue().toString() : "null";
+            String targetType = invalidFormat.getTargetType() != null ? invalidFormat.getTargetType().getSimpleName() : "unknown";
+            errorMessage = String.format("필드 '%s'의 값 '%s'을(를) %s 타입으로 변환할 수 없습니다.",
+                fieldPath, value, targetType);
 
         } else if (rootCause instanceof MismatchedInputException mismatchedInput) {
             String fieldPath = mismatchedInput.getPath().stream()
