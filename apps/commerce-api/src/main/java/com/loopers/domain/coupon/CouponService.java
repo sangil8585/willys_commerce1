@@ -38,7 +38,7 @@ public class CouponService {
     }
     
     @Transactional
-    public CouponEntity useCoupon(Long couponId, String userId, Long orderAmount) {
+    public CouponEntity useCoupon(Long couponId, Long userId, Long orderAmount) {
         // 비관적 락으로 쿠폰 조회 (다른 트랜잭션이 대기)
         CouponEntity coupon = couponRepository.findByIdWithLock(couponId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "쿠폰을 찾을 수 없습니다."));

@@ -37,6 +37,11 @@ public class ProductService {
     }
     
     @Transactional(readOnly = true)
+    public List<ProductEntity> findByIds(List<Long> productIds) {
+        return productRepository.findByIds(productIds);
+    }
+    
+    @Transactional(readOnly = true)
     public boolean existsById(Long productId) {
         return productRepository.existsById(productId);
     }

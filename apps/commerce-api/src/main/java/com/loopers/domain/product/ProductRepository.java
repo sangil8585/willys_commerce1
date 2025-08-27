@@ -15,6 +15,8 @@ public interface ProductRepository {
 
     Optional<ProductEntity> findById(Long productId);
     
+    List<ProductEntity> findByIds(List<Long> productIds);
+    
     boolean existsById(Long productId);
     
     Optional<ProductEntity> findByIdWithLock(Long productId);
