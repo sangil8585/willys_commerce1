@@ -16,7 +16,7 @@ public class UserEntity extends BaseEntity {
     private static final String USER_EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final String USER_BIRTH_REGEX = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$";
 
-    private String userId;
+    private Long userId;
     private Gender gender;
     private String birth;
     private String email;

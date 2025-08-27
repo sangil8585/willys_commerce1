@@ -5,9 +5,9 @@ import java.util.Optional;
 public interface UserRepository {
     UserEntity save(UserEntity user);
 
-    boolean existsUserId(String userId);
+    boolean existsUserId(Long userId);
 
-    Optional<UserEntity> findByUserId(String userId);
+    Optional<UserEntity> findByUserId(Long userId);
 
     boolean existsById(Long userId);
     
