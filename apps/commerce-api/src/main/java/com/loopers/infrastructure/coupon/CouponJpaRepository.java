@@ -15,14 +15,14 @@ import java.util.Optional;
 @Repository
 public interface CouponJpaRepository extends JpaRepository<CouponEntity, Long> {
     
-    List<CouponEntity> findByUserId(String userId);
+    List<CouponEntity> findByUserId(Long userId);
     
-    List<CouponEntity> findByUserIdAndIsUsedFalse(String userId);
+    List<CouponEntity> findByUserIdAndIsUsedFalse(Long userId);
     
     @Query("SELECT c FROM CouponEntity c WHERE c.userId = :userId AND c.isUsed = false AND c.expiredAt > :now")
-    List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(@Param("userId") String userId, @Param("now") ZonedDateTime now);
+    List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(@Param("userId") Long userId, @Param("now") ZonedDateTime now);
     
-    default List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(String userId) {
+    default List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(Long userId) {
         return findByUserIdAndIsUsedFalseAndExpiredAtAfter(userId, ZonedDateTime.now());
     }
     

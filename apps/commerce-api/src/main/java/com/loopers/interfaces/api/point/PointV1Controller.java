@@ -15,7 +15,7 @@ public class PointV1Controller {
 
     @GetMapping
     public ApiResponse<PointV1Dto.PointResponse> getPointInfo(
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader("X-USER-ID") Long userId
     ) {
         PointInfo pointInfo = pointFacade.getPointInfo(userId);
 

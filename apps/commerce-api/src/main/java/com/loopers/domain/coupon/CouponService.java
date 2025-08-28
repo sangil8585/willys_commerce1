@@ -18,7 +18,7 @@ public class CouponService {
     
     @Transactional
     public CouponEntity createCoupon(
-            String userId,
+            Long userId,
             String name,
             CouponType type,
             Long discountValue,
@@ -57,7 +57,7 @@ public class CouponService {
     }
     
     @Transactional(readOnly = true)
-    public Long calculateDiscount(Long couponId, String userId, Long orderAmount) {
+    public Long calculateDiscount(Long couponId, Long userId, Long orderAmount) {
         CouponEntity coupon = couponRepository.findById(couponId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "쿠폰을 찾을 수 없습니다."));
         
@@ -75,12 +75,12 @@ public class CouponService {
     }
     
     @Transactional(readOnly = true)
-    public List<CouponEntity> findByUserId(String userId) {
+    public List<CouponEntity> findByUserId(Long userId) {
         return couponRepository.findByUserId(userId);
     }
     
     @Transactional(readOnly = true)
-    public List<CouponEntity> findAvailableCoupons(String userId) {
+    public List<CouponEntity> findAvailableCoupons(Long userId) {
         return couponRepository.findByUserIdAndIsUsedFalseAndExpiredAtAfter(userId);
     }
     

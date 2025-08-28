@@ -14,13 +14,13 @@ public class PointFacade {
     private final PointService pointService;
 
     @Transactional
-    public PointInfo chargePoint(String userId, Long amount) {
+    public PointInfo chargePoint(Long userId, Long amount) {
         Long resultAmount = pointService.charge(userId, amount);
         return PointInfo.from(userId, resultAmount);
     }
 
     @Transactional(readOnly = true)
-    public PointInfo getPointInfo(String userId) {
+    public PointInfo getPointInfo(Long userId) {
         Optional<Long> amount = pointService.get(userId);
         return PointInfo.from(userId, amount.orElse(null), false);
     }

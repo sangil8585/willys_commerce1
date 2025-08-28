@@ -107,7 +107,7 @@ class PaymentFacadeTest {
         @Test
         void findsPaymentByOrderId() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             String orderId = "1351039135";
             // TODO: PaymentService 구현 후 테스트 수정
 

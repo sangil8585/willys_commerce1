@@ -94,7 +94,7 @@ class PaymentFacadeIntegrationTest {
         @Test
         void findsPaymentByOrderId() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             String orderId = "1351039135";
 
             // act
@@ -109,7 +109,7 @@ class PaymentFacadeIntegrationTest {
         @Test
         void throwsException_whenOrderIdNotFound() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             String orderId = "NON_EXISTENT";
 
             // act & assert

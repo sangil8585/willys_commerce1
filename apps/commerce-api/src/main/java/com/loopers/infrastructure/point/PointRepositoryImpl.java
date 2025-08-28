@@ -16,13 +16,13 @@ public class PointRepositoryImpl implements PointRepository {
     private final PointJpaRepository pointJpaRepository;
 
     @Override
-    public Optional<Long> getPointByUserId(String userId) {
+    public Optional<Long> getPointByUserId(Long userId) {
         Optional<PointEntity> optional = pointJpaRepository.findByUserId(userId);
         return optional.map(PointEntity::getAmount);
     }
 
     // @Override
-    // public Long chargePoint(String userId, Long amount) {
+    // public Long chargePoint(Long userId, Long amount) {
     //     Optional<PointEntity> optional = pointJpaRepository.findByUserId(userId);
     //     if(optional.isEmpty()) {
     //         throw new CoreException(ErrorType.BAD_REQUEST);
@@ -35,7 +35,7 @@ public class PointRepositoryImpl implements PointRepository {
     // }
 
     @Override
-    public void createPointForUser(String userId) {
+    public void createPointForUser(Long userId) {
         if (!pointJpaRepository.existsByUserId(userId)) {
             PointEntity pointEntity = PointEntity.create(userId);
             pointJpaRepository.save(pointEntity);
@@ -43,12 +43,12 @@ public class PointRepositoryImpl implements PointRepository {
     }
     
     // 비관락 메서드 추가가 (포인트 차감용)
-    public Optional<PointEntity> findByUserIdWithLock(String userId) {
+    public Optional<PointEntity> findByUserIdWithLock(Long userId) {
         return pointJpaRepository.findByUserIdWithLock(userId);
     }
     
     // 낙관적 락 메서드 추가 (포인트 충전용용)
-    public Optional<PointEntity> findByUserIdWithOptimisticLock(String userId) {
+    public Optional<PointEntity> findByUserIdWithOptimisticLock(Long userId) {
         return pointJpaRepository.findByUserIdWithOptimisticLock(userId);
     }
     

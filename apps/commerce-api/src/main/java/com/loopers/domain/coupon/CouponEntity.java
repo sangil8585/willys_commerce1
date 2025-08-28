@@ -19,7 +19,7 @@ public class CouponEntity extends BaseEntity {
     private Long id;
     
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private Long userId;
     
     @Column(name = "name", nullable = false)
     private String name;
@@ -46,7 +46,7 @@ public class CouponEntity extends BaseEntity {
     @Column(name = "is_used", nullable = false)
     private boolean isUsed = false;
 
-    public CouponEntity(String userId, String name, CouponType type, Long discountValue, 
+    public CouponEntity(Long userId, String name, CouponType type, Long discountValue, 
                        Long minOrderAmount, Long maxDiscountAmount, ZonedDateTime expiredAt) {
         this.userId = userId;
         this.name = name;
@@ -120,7 +120,7 @@ public class CouponEntity extends BaseEntity {
         this.usedAt = ZonedDateTime.now();
     }
 
-    public static CouponEntity create(String userId, String name, CouponType type, Long discountValue, 
+    public static CouponEntity create(Long userId, String name, CouponType type, Long discountValue, 
                                     Long minOrderAmount, Long maxDiscountAmount, ZonedDateTime expiredAt) {
         return new CouponEntity(userId, name, type, discountValue, minOrderAmount, maxDiscountAmount, expiredAt);
     }

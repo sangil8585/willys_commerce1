@@ -14,7 +14,7 @@ class CouponTest {
     @DisplayName("쿠폰 생성 시 기본값이 올바르게 설정되어야 한다")
     void 쿠폰_생성_테스트() {
         // given
-        String userId = "sangil8585";
+        Long userId = "sangil8585";
         String name = "갓 태어난 쿠폰";
         CouponType type = CouponType.FIXED_AMOUNT;
         Long discountValue = 1000L;

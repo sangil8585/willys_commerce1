@@ -59,7 +59,7 @@ public class PaymentFacade {
     }
     
     @Transactional(readOnly = true)
-    public PaymentResult getPaymentByOrderId(String userId, String orderId) {
+    public PaymentResult getPaymentByOrderId(Long userId, String orderId) {
         // 실제 구현에서는 PaymentService를 통해 결제 정보를 조회
         throw new UnsupportedOperationException("아직 구현되지 않았습니다.");
     }

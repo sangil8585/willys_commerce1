@@ -81,7 +81,7 @@ class PaymentV1ApiE2ETest {
         @Test
         void returnsPaymentResponse_whenValidCardPaymentRequestIsProvided() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             PaymentV1Dto.PaymentRequest request = new PaymentV1Dto.PaymentRequest(
                 "1351039135",
                 "SAMSUNG",
@@ -138,7 +138,7 @@ class PaymentV1ApiE2ETest {
         @Test
         void throwsBadRequest_whenRequiredFieldsAreMissing() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             PaymentV1Dto.PaymentRequest request = new PaymentV1Dto.PaymentRequest(
                 null, // orderId 누락
                 "SAMSUNG",
@@ -167,7 +167,7 @@ class PaymentV1ApiE2ETest {
             // arrange - Mock 설정을 결제 거절로 변경
             setupMockPaymentRejection();
             
-            String userId = "135135";
+            Long userId = "135135";
             PaymentV1Dto.PaymentRequest request = new PaymentV1Dto.PaymentRequest(
                 "1351039135",
                 "SAMSUNG",
@@ -196,7 +196,7 @@ class PaymentV1ApiE2ETest {
             // arrange - Mock 설정을 결제 타임아웃으로 변경
             setupMockPaymentTimeout();
             
-            String userId = "135135";
+            Long userId = "135135";
             PaymentV1Dto.PaymentRequest request = new PaymentV1Dto.PaymentRequest(
                 "1351039135",
                 "SAMSUNG",
@@ -228,7 +228,7 @@ class PaymentV1ApiE2ETest {
         @Test
         void returnsPaymentInfoResponse_whenValidPaymentIdIsProvided() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             String paymentId = "20250816:TR:9577c5";
             
             HttpHeaders headers = new HttpHeaders();
@@ -284,7 +284,7 @@ class PaymentV1ApiE2ETest {
         @Test
         void returnsPaymentInfoResponse_whenValidOrderIdIsProvided() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             String orderId = "1351039135";
             
             HttpHeaders headers = new HttpHeaders();
@@ -335,7 +335,7 @@ class PaymentV1ApiE2ETest {
         @Test
         void throwsBadRequest_whenOrderIdParameterIsMissing() {
             // arrange
-            String userId = "135135";
+            Long userId = "135135";
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", userId);

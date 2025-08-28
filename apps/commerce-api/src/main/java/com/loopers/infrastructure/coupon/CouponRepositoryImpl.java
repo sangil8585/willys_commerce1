@@ -25,17 +25,17 @@ public class CouponRepositoryImpl implements CouponRepository {
     }
     
     @Override
-    public List<CouponEntity> findByUserId(String userId) {
+    public List<CouponEntity> findByUserId(Long userId) {
         return couponJpaRepository.findByUserId(userId);
     }
     
     @Override
-    public List<CouponEntity> findByUserIdAndIsUsedFalse(String userId) {
+    public List<CouponEntity> findByUserIdAndIsUsedFalse(Long userId) {
         return couponJpaRepository.findByUserIdAndIsUsedFalse(userId);
     }
     
     @Override
-    public List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(String userId) {
+    public List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(Long userId) {
         return couponJpaRepository.findByUserIdAndIsUsedFalseAndExpiredAtAfter(userId);
     }
     

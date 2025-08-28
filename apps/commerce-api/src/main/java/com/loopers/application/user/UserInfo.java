@@ -4,7 +4,7 @@ import com.loopers.domain.user.UserEntity;
 
 public record UserInfo(
         Long id,
-        String userId,
+        Long userId,
         UserEntity.Gender gender,
         String birthDate,
         String email

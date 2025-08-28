@@ -19,7 +19,7 @@ public interface PgV1FeignClient {
     @TimeLimiter(name = "pg-payment")
     @Retry(name = "pg-payment")
     ApiResponse<PgV1Dto.Response.Transaction> request(
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @RequestBody PgV1Dto.Request.Transaction request
     );
 
@@ -29,7 +29,7 @@ public interface PgV1FeignClient {
     @Retry(name = "pg-payment")
     ApiResponse<PgV1Dto.Response.Order> findOrder(
             @RequestParam(name = "orderId") String orderKey,
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader("X-USER-ID") Long userId
     );
 
     @GetMapping("/{transactionKey}")
@@ -38,6 +38,6 @@ public interface PgV1FeignClient {
     @Retry(name = "pg-payment")
     ApiResponse<PgV1Dto.Response.Transaction> findTransaction(
             @PathVariable(name = "transactionKey") String transactionKey,
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader("X-USER-ID") Long userId
     );
 }

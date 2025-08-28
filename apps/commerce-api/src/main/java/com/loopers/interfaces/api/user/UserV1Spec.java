@@ -25,6 +25,6 @@ public interface UserV1Spec {
     )
     ApiResponse<UserV1Dto.UserResponse> getMyInfo(
             @Schema(name = "예시 ID", description = "조회할 예시의 ID")
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader("X-USER-ID") Long userId
     );
 }

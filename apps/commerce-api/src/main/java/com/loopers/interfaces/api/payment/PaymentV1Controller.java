@@ -17,7 +17,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
     @PostMapping
     @Override
     public ApiResponse<PaymentV1Dto.PaymentResponse> requestPayment(
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @RequestBody PaymentV1Dto.PaymentRequest request
     ) {
         PaymentCriteria criteria = new PaymentCriteria(
@@ -37,7 +37,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
     @GetMapping("/{paymentId}")
     @Override
     public ApiResponse<PaymentV1Dto.PaymentInfoResponse> getPaymentInfo(
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @PathVariable String paymentId
     ) {
         // TODO: 실제 구현에서는 PaymentFacade를 통해 결제 정보를 조회
@@ -47,7 +47,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
     @GetMapping
     @Override
     public ApiResponse<PaymentV1Dto.PaymentInfoResponse> getPaymentByOrderId(
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @RequestParam String orderId
     ) {
         // TODO: 실제 구현에서는 PaymentFacade를 통해 주문별 결제 정보를 조회

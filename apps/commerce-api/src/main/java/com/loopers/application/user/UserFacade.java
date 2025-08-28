@@ -27,7 +27,7 @@ public class UserFacade {
     }
 
     @Transactional(readOnly = true)
-    public UserInfo findByUserId(String userId) {
+    public UserInfo findByUserId(Long userId) {
 
         UserEntity userEntity = userService.findByUserId(userId).orElseThrow(() ->
                 new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));

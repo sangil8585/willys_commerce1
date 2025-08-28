@@ -25,7 +25,7 @@ public class PgPaymentService {
      * @param request 결제 요청 정보
      * @return 결제 응답
      */
-    public ApiResponse<PgV1Dto.Response.Transaction> requestPayment(String userId, PgV1Dto.Request.Transaction request) {
+    public ApiResponse<PgV1Dto.Response.Transaction> requestPayment(Long userId, PgV1Dto.Request.Transaction request) {
         try {
             log.info("PG 결제 요청 시작 - userId: {}, orderId: {}, amount: {}", 
                 userId, request.orderId(), request.amount());
@@ -58,7 +58,7 @@ public class PgPaymentService {
      * @param orderId 주문 ID
      * @return 주문 상태
      */
-    public ApiResponse<PgV1Dto.Response.Order> findOrderStatus(String userId, String orderId) {
+    public ApiResponse<PgV1Dto.Response.Order> findOrderStatus(Long userId, String orderId) {
         try {
             log.info("PG 주문 상태 조회 시작 - userId: {}, orderId: {}", userId, orderId);
             
@@ -89,7 +89,7 @@ public class PgPaymentService {
      * @param transactionKey 거래 키
      * @return 거래 상세 정보
      */
-    public ApiResponse<PgV1Dto.Response.Transaction> findTransactionDetail(String userId, String transactionKey) {
+    public ApiResponse<PgV1Dto.Response.Transaction> findTransactionDetail(Long userId, String transactionKey) {
         try {
             log.info("PG 거래 상세 조회 시작 - userId: {}, transactionKey: {}", userId, transactionKey);
             
