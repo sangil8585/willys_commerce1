@@ -3,13 +3,16 @@ package com.loopers.application.like;
 import com.loopers.application.product.ProductFacade;
 import com.loopers.domain.like.LikeCommand;
 import com.loopers.domain.like.LikeEntity;
+import com.loopers.domain.like.LikeEvent;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.user.UserActivityEvent;
 import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,7 @@ public class LikeFacade {
     private final ProductService productService;
     private final LikeService likeService;
     private final ProductFacade productFacade;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public LikeInfo like(LikeCommand.Create createCommand) {
@@ -47,6 +51,28 @@ public class LikeFacade {
             productFacade.evictProductCacheForLikes(createCommand.productId());
         }
         
+        LikeEvent.Created likeCreatedEvent = LikeEvent.Created.of(
+                likeEntity.getId(),
+                likeEntity.getUserId(),
+                likeEntity.getProductId()
+        );
+        eventPublisher.publishEvent(likeCreatedEvent);
+        
+        UserActivityEvent.LikeAction likeActionEvent = UserActivityEvent.LikeAction.of(
+                likeEntity.getUserId(),
+                likeEntity.getProductId(),
+                "LIKE",
+                "user-agent", // TODO: 실제 User-Agent 헤더에서 가져오기
+                "127.0.0.1"  // TODO: 실제 IP 주소에서 가져오기
+        );
+        eventPublisher.publishEvent(likeActionEvent);
+        
+        LikeEvent.AggregationRequested aggregationEvent = LikeEvent.AggregationRequested.of(
+                likeEntity.getProductId(),
+                product.getLikes()
+        );
+        eventPublisher.publishEvent(aggregationEvent);
+        
         return LikeInfo.from(likeEntity);
     }
 
@@ -68,6 +94,28 @@ public class LikeFacade {
         
         // 상품 캐시 무효화
         productFacade.evictProductCacheForLikes(productId);
+        
+        LikeEvent.Removed likeRemovedEvent = LikeEvent.Removed.of(
+                null, // TODO: 삭제된 likeId를 저장하거나 별도로 관리
+                userId,
+                productId
+        );
+        eventPublisher.publishEvent(likeRemovedEvent);
+        
+        UserActivityEvent.LikeAction likeActionEvent = UserActivityEvent.LikeAction.of(
+                userId,
+                productId,
+                "UNLIKE",
+                "user-agent", // TODO: 실제 User-Agent 헤더에서 가져오기
+                "127.0.0.1"  // TODO: 실제 IP 주소에서 가져오기
+        );
+        eventPublisher.publishEvent(likeActionEvent);
+        
+        LikeEvent.AggregationRequested aggregationEvent = LikeEvent.AggregationRequested.of(
+                productId,
+                product.getLikes()
+        );
+        eventPublisher.publishEvent(aggregationEvent);
     }
 
     @Transactional(readOnly = true)
