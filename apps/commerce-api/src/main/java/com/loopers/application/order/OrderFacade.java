@@ -105,7 +105,16 @@ public class OrderFacade {
         log.info("주문 생성 완료 - orderId: {}, 총액: {}, 할인: {}, 최종금액: {}, 결제ID: {}", 
                 createdOrder.getId(), totalAmount, discountAmount, totalAmount - discountAmount, payment.getPaymentId());
         
-        // 결과 반환 (결제 대기 상태, 결제 ID 포함)
+        // 주문 생성 완료 이벤트 발행
+        OrderEvent.Completed orderCompletedEvent = OrderEvent.Completed.of(
+                createdOrder.getId(),
+                createdOrder.getUserId(),
+                createdOrder.getTotalAmount(),
+                createdOrder.getDiscountAmount()
+        );
+        eventPublisher.publishEvent(orderCompletedEvent);
+        
+        // 결과 반환
         return OrderResult.OrderResponse.from(createdOrder, payment.getPaymentId());
     }
     
@@ -135,14 +144,25 @@ public class OrderFacade {
                     ));
             productService.deductStock(stockDeductionMap);
             
-            // 주문 완료 이벤트 발행
-            OrderEvent.Completed orderCompletedEvent = OrderEvent.Completed.of(
+            
+            PaymentEntity payment = paymentService.findByOrderId(orderId.toString());
+            
+            // 결제 완료 이벤트 발행
+            OrderEvent.PaymentCompleted paymentCompletedEvent = OrderEvent.PaymentCompleted.of(
                     order.getId(),
                     order.getUserId(),
-                    order.getTotalAmount(),
-                    order.getDiscountAmount()
+                    payment.getPaymentId(),
+                    order.getFinalAmount()
             );
-            eventPublisher.publishEvent(orderCompletedEvent);
+            eventPublisher.publishEvent(paymentCompletedEvent);
+            
+            // 데이터 플랫폼 전송 이벤트 발행
+            OrderEvent.DataPlatformSent dataPlatformEvent = OrderEvent.DataPlatformSent.of(
+                    order.getId(),
+                    order.getUserId(),
+                    "ORDER_COMPLETED"
+            );
+            eventPublisher.publishEvent(dataPlatformEvent);
             
             log.info("결제 완료 후 주문 완료 처리 완료 - orderId: {}, 재고 차감 완료", orderId);
             
