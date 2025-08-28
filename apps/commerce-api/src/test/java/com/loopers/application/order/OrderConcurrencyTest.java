@@ -63,7 +63,7 @@ public class OrderConcurrencyTest {
     @BeforeEach
     void setUp() {
         UserCommand.Create createCommand = new UserCommand.Create(
-                "sangil8585",
+                1L,
                 UserEntity.Gender.MALE,
                 "1993-02-24",
                 "sangil8585@naver.com"
@@ -112,7 +112,7 @@ public class OrderConcurrencyTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
                     );
                     OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
                     
@@ -155,8 +155,8 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                    List<OrderCriteria.OrderItem> items = List.of(
+                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
                     );
                     OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
                     
@@ -197,7 +197,7 @@ public class OrderConcurrencyTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
                     );
                     OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, testCoupon.getId());
                     
@@ -242,7 +242,7 @@ public class OrderConcurrencyTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
                     );
                     OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
                     
@@ -284,7 +284,7 @@ public class OrderConcurrencyTest {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
                     List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
                     );
                     OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
                     
@@ -313,7 +313,7 @@ public class OrderConcurrencyTest {
     void 비관적락_재고_오버셀_방지_테스트() throws Exception {
         // given
         int threadCount = 15;
-        int orderQuantity = 1;
+        Long orderQuantity = 15L;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         AtomicInteger successCount = new AtomicInteger(0);
@@ -372,7 +372,7 @@ public class OrderConcurrencyTest {
 
             // when & then
             List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
             );
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
@@ -391,7 +391,7 @@ public class OrderConcurrencyTest {
         void 사용불가능한_쿠폰_주문실패_테스트() {
             // given - 존재하지 않는 쿠폰 ID
             List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
             );
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, 99999L); 
 
@@ -409,7 +409,7 @@ public class OrderConcurrencyTest {
         void 재고부족_주문실패_테스트() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), 15, testProduct.getPrice())
+                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
             );
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 
@@ -431,7 +431,7 @@ public class OrderConcurrencyTest {
             pointService.charge(userInfo.userId(), 500L); 
 
             List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), 1, testProduct.getPrice())
+                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
             );
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
 

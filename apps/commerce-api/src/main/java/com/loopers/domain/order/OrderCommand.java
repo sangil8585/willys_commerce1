@@ -33,6 +33,8 @@ public class OrderCommand {
             Long quantity,
             Long price
     ) {
-        
+        public static OrderItem of(Long productId, Long quantity, Long price) {
+            return new OrderItem(productId, quantity, price);
+        }
     }
 } 

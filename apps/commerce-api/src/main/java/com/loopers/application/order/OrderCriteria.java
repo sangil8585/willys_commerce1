@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
+
 public class OrderCriteria {
         public record Item(
                 Long productId,
@@ -15,6 +16,9 @@ public class OrderCriteria {
         public record Order(
                 Long userId,
                 String paymentType,
+                String cardType,
+                String cardNo,
+                String callbackUrl,
                 List<Item> items,
                 List<Long> couponIds
         ) {

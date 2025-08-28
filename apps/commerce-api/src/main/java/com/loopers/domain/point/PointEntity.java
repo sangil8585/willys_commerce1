@@ -39,22 +39,6 @@ public class PointEntity extends BaseEntity {
         this.version = 0L;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
     public void charge(Long chargeAmount) {
         this.amount += chargeAmount;
     }
