@@ -23,8 +23,8 @@ public class OrderTest {
         void 주문을_생성한다() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(1L, 2, 1000L),
-                    OrderCommand.OrderItem.of(2L, 1, 1000L)
+                    new OrderCommand.OrderItem(1L, 2L, 1000L),
+                    new OrderCommand.OrderItem(2L, 1L, 1000L)
             );
             OrderCommand.Create command = OrderCommand.Create.of(1L, items);
 
@@ -68,7 +68,7 @@ public class OrderTest {
         void 아이템수량_0이하일경우_생성실패() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                    OrderCommand.OrderItem.of(1L, 0, 1000L)
+                    new OrderCommand.OrderItem(1L, 0L, 1000L)
             );
             OrderCommand.Create command = OrderCommand.Create.of(1L, items);
 

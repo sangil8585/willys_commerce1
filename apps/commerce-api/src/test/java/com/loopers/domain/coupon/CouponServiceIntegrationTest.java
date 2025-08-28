@@ -35,7 +35,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("사용자 ID로 쿠폰을 조회할 수 있어야 한다")
     void 사용자별_쿠폰_조회_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         couponService.createCoupon(userId, "1000원 할인 쿠폰", CouponType.FIXED_AMOUNT, 1000L, 5000L, null, ZonedDateTime.now().plusDays(7));
         couponService.createCoupon(userId, "10% 할인 쿠폰", CouponType.PERCENTAGE, 10L, 5000L, null, ZonedDateTime.now().plusDays(7));
 
@@ -51,7 +51,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("사용 가능한 쿠폰만 조회할 수 있어야 한다")
     void 사용가능한_쿠폰_조회_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         // 사용 가능한 쿠폰
         CouponEntity validCoupon = couponService.createCoupon(userId, "유효한 쿠폰", CouponType.FIXED_AMOUNT, 1000L, 5000L, null, ZonedDateTime.now().plusDays(7));
         // 만료된 쿠폰
@@ -80,7 +80,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("정률 할인 쿠폰의 할인 금액을 계산할 수 있어야 한다")
     void 정률_할인_쿠폰_계산_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         CouponEntity coupon = couponService.createCoupon(
                 userId, "정률 쿠폰",
                 CouponType.PERCENTAGE,
@@ -102,7 +102,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("쿠폰을 사용할 수 있어야 한다")
     void 쿠폰_사용_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         CouponEntity coupon = couponService.createCoupon(
                 userId,
                 "1000원 할인 쿠폰",
@@ -126,7 +126,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("존재하지 않는 쿠폰을 사용하려고 하면 예외가 발생해야 한다")
     void 존재하지_않는_쿠폰_사용_예외_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         Long nonExistentCouponId = 999L;
         Long orderAmount = 10000L;
 
@@ -140,7 +140,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("이미 사용된 쿠폰을 다시 사용하려고 하면 예외가 발생해야 한다")
     void 이미_사용된_쿠폰_재사용_예외_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         CouponEntity coupon = couponService.createCoupon(userId, "만원 쿠폰", CouponType.FIXED_AMOUNT, 1000L, 5000L, null, ZonedDateTime.now().plusDays(7));
         Long orderAmount = 10000L;
 
@@ -157,7 +157,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("만료된 쿠폰을 사용하려고 하면 예외가 발생해야 한다")
     void 만료된_쿠폰_사용_예외_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         CouponEntity coupon = couponService.createCoupon(userId, "만원 쿠폰", CouponType.FIXED_AMOUNT, 1000L, 5000L, null, ZonedDateTime.now().minusDays(1));
         Long orderAmount = 10000L;
 
@@ -171,7 +171,7 @@ class CouponServiceIntegrationTest {
     @DisplayName("쿠폰 ID로 쿠폰을 조회할 수 있어야 한다")
     void 쿠폰_ID_조회_테스트() {
         // given
-        Long userId = "sangil8585";
+        Long userId = 1L;
         CouponEntity createdCoupon = couponService.createCoupon(
                 userId,
                 "1000원 할인 쿠폰",

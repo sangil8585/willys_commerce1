@@ -47,7 +47,7 @@ public class UserV1ApiE2ETest {
         void 회원_가입_성공시_유저정보_반환() {
             // given
             UserV1Dto.SignUpRequest signUpRequest = new UserV1Dto.SignUpRequest(
-                    "sda5544", "MALE",
+                    1L, "MALE",
                     "1993-02-24", "sangil8585@naver.com");
 
             // when
@@ -72,7 +72,7 @@ public class UserV1ApiE2ETest {
         void 회원가입시_성별_없을경우_400에러() {
             // given
             UserV1Dto.SignUpRequest signUpRequest = new UserV1Dto.SignUpRequest(
-                    "sangil8585", null, "1993-02-24", "sangil8585@naver.com");
+                    1L, null, "1993-02-24", "sangil8585@naver.com");
 
             // when
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
@@ -101,7 +101,7 @@ public class UserV1ApiE2ETest {
         void 내정보_조회성공시_유저정보_응답() {
             // given
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"

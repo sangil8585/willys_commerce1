@@ -51,7 +51,7 @@ public class UserTest {
     @Test
     void 이메일이_형식에_안맞으면_생성실패() {
         // arrange
-        final Long userId = "sangil44";
+        final Long userId = 1L;
         final UserEntity.Gender gender = UserEntity.Gender.from("MALE");
         final String birth = "1999-12-31";
         final String email = "asdf@gmail";
@@ -74,7 +74,7 @@ public class UserTest {
     @Test
     void 생년월일이_형식에_안맞으면_생성실패() {
         // arrange
-        final Long userId = "sangil44";
+        final Long userId = 1L;
         final UserEntity.Gender gender = UserEntity.Gender.from("MALE");
         final String birth = "1993.02.24";
         final String email = "asdf@gmail.com";

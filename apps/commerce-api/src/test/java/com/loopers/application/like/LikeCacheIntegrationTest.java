@@ -60,7 +60,7 @@ public class LikeCacheIntegrationTest {
         ProductInfo createdProduct = productFacade.createProduct(productCommand);
         productId = createdProduct.id();
         
-        UserCommand.Create userCommand = UserCommand.Create.of("testUser", "MALE", "1990-01-01", "test@example.com");
+        UserCommand.Create userCommand = UserCommand.Create.of(1L, "MALE", "1990-01-01", "test@example.com");
         UserEntity user = userService.signUp(userCommand);
         userId = user.getId();
     }

@@ -51,7 +51,7 @@ class LikeFacadeIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        var testUserCommand = UserCommand.Create.of("testUser", "MALE", "2000-01-01", "sangil8585@naver.com");
+        var testUserCommand = UserCommand.Create.of(1L, "MALE", "2000-01-01", "sangil8585@naver.com");
         testUser = userService.signUp(testUserCommand);
 
         var testBrand = brandService.create("나이키").getId();

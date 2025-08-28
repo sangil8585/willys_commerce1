@@ -68,7 +68,7 @@ public class OrderFacadeIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        String loginId = "sangil8585";
+        Long loginId = 1L;
         String gender = "MALE";
         String birthDate = "1993-02-24";
         String email = "sangil8585@naver.com";
@@ -133,9 +133,9 @@ public class OrderFacadeIntegrationTest {
             // given
             List<OrderCommand.OrderItem> items = List.of(
                 // 1000원 티셔츠
-                OrderCommand.OrderItem.of(testProduct1.getId(), 2, testProduct1.getPrice()),
+                OrderCommand.OrderItem.of(testProduct1.getId(), testProduct1.getStock(), testProduct1.getPrice()),
                 // 2000원 운동복
-                OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
+                OrderCommand.OrderItem.of(testProduct2.getId(), testProduct1.getStock(), testProduct2.getPrice())
             );
             // 생성
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
@@ -173,7 +173,7 @@ public class OrderFacadeIntegrationTest {
         void 포인트부족시_주문생성_실패() {
             // given
             List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct1.getId(), 11, testProduct1.getPrice()) // 11000원 주문 (포인트 10000원)
+                OrderCommand.OrderItem.of(testProduct1.getId(), testProduct1.getStock(), testProduct1.getPrice()) // 11000원 주문 (포인트 10000원)
             );
             // 생성
             OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
@@ -209,7 +209,7 @@ public class OrderFacadeIntegrationTest {
             OrderCommand.Create command1 = OrderCommand.Create.of(userInfo.id(), items1);
 
             List<OrderCommand.OrderItem> items2 = List.of(
-                OrderCommand.OrderItem.of(testProduct2.getId(), 1, testProduct2.getPrice())
+                OrderCommand.OrderItem.of(testProduct2.getId(), testProduct1.getStock(), testProduct2.getPrice())
             );
             // 생성2
             OrderCommand.Create command2 = OrderCommand.Create.of(userInfo.id(), items2);
