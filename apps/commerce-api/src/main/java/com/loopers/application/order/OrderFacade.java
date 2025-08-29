@@ -75,18 +75,6 @@ public class OrderFacade {
                 .sum();
         log.debug("최초 주문 총액 계산(쿠폰미적용): {}", totalAmount);
         
-        // 쿠폰 사용 여부 확인 및 적용
-        Long discountAmount = 0L;
-        if(criteria.couponIds() != null && !criteria.couponIds().isEmpty()) {
-            Long couponId = criteria.couponIds().get(0);
-            discountAmount = couponService.calculateDiscount(couponId, criteria.userId(), totalAmount);
-            couponService.useCoupon(couponId, criteria.userId(), totalAmount);
-            Long finalAmount = totalAmount - discountAmount;
-            
-            log.debug("쿠폰 적용 - 쿠폰ID: {}, 할인 금액: {}, 최종 금액: {}", 
-                    couponId, discountAmount, finalAmount);
-        }
-        
         // 주문 생성 (CREATED 상태로 생성, 재고 차감 없음)
         OrderEntity createdOrder = orderService.createOrder(orderCommand, productPriceMap);
         
@@ -96,16 +84,42 @@ public class OrderFacade {
                 createdOrder.getId().toString(),
                 criteria.cardType(),
                 criteria.cardNo(),
-                String.valueOf(totalAmount - discountAmount),
+                String.valueOf(totalAmount),
                 criteria.callbackUrl()
         );
         
         PaymentEntity payment = paymentService.createPayment(paymentCommand);
         
-        log.info("주문 생성 완료 - orderId: {}, 총액: {}, 할인: {}, 최종금액: {}, 결제ID: {}", 
-                createdOrder.getId(), totalAmount, discountAmount, totalAmount - discountAmount, payment.getPaymentId());
+        log.info("주문 생성 완료 - orderId: {}, 총액: {}, 결제ID: {}", 
+                createdOrder.getId(), totalAmount, payment.getPaymentId());
         
-        // 주문 생성 완료 이벤트 발행
+        // 1. 쿠폰 사용 이벤트 발행 (쿠폰이 있는 경우)
+        if(criteria.couponIds() != null && !criteria.couponIds().isEmpty()) {
+            Long couponId = criteria.couponIds().get(0);
+            OrderEvent.CouponUsageRequested couponEvent = OrderEvent.CouponUsageRequested.of(
+                    createdOrder.getId(),
+                    criteria.userId(),
+                    couponId,
+                    totalAmount
+            );
+            eventPublisher.publishEvent(couponEvent);
+            log.debug("쿠폰 사용 이벤트 발행 - orderId: {}, couponId: {}", createdOrder.getId(), couponId);
+        }
+        
+        // 2. 재고 예약 이벤트 발행
+        List<OrderEvent.StockReservationItem> stockItems = criteria.items().stream()
+                .map(item -> OrderEvent.StockReservationItem.of(item.productId(), item.quantity().intValue()))
+                .toList();
+        
+        OrderEvent.StockReservationRequested stockEvent = OrderEvent.StockReservationRequested.of(
+                createdOrder.getId(),
+                criteria.userId(),
+                stockItems
+        );
+        eventPublisher.publishEvent(stockEvent);
+        log.debug("재고 예약 이벤트 발행 - orderId: {}, items: {}", createdOrder.getId(), stockItems);
+        
+        // 3. 주문 생성 완료 이벤트 발행
         OrderEvent.Completed orderCompletedEvent = OrderEvent.Completed.of(
                 createdOrder.getId(),
                 createdOrder.getUserId(),
@@ -113,6 +127,7 @@ public class OrderFacade {
                 createdOrder.getDiscountAmount()
         );
         eventPublisher.publishEvent(orderCompletedEvent);
+        log.debug("주문 생성 완료 이벤트 발행 - orderId: {}", createdOrder.getId());
         
         // 결과 반환
         return OrderResult.OrderResponse.from(createdOrder, payment.getPaymentId());
@@ -120,7 +135,7 @@ public class OrderFacade {
     
     /**
      * 결제 완료 후 주문 완료 처리
-     * Payment 도메인에서 호출하여 주문 상태를 완료로 변경하고 재고를 차감합니다.
+     * Payment 도메인에서 호출하여 주문 상태를 완료로 변경하고 재고를 차감
      */
     @Transactional
     public void completeOrderAfterPayment(Long orderId) {
@@ -135,15 +150,6 @@ public class OrderFacade {
             // 주문 완료 처리
             order.complete();
             orderService.save(order);
-            
-            // 재고 차감 (결제 완료 후)
-            Map<Long, Integer> stockDeductionMap = order.getItems().stream()
-                    .collect(Collectors.toMap(
-                            item -> item.getProductId(),
-                            item -> item.getQuantity().intValue()
-                    ));
-            productService.deductStock(stockDeductionMap);
-            
             
             PaymentEntity payment = paymentService.findByOrderId(orderId.toString());
             

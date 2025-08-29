@@ -20,7 +20,7 @@ public class OrderResult {
                 order.getCreatedAt().toString(),
                 order.getTotalAmount(),
                 order.getStateDescription(),
-                null // 결제 ID는 별도로 설정
+                null
             );
         }
         
@@ -33,6 +33,29 @@ public class OrderResult {
                 order.getStateDescription(),
                 paymentId
             );
+        }
+    }
+
+    public record Item(
+        Long productId,
+        Long quantity,
+        Long price
+    ) {
+        public static Item from(com.loopers.domain.order.OrderItemEntity orderItem) {
+            return new Item(
+                orderItem.getProductId(),
+                orderItem.getQuantity(),
+                orderItem.getPrice()
+            );
+        }
+    }
+
+    public record Coupon(
+        Long couponId,
+        Long value
+    ) {
+        public static Coupon of(Long couponId, Long value) {
+            return new Coupon(couponId, value);
         }
     }
 }
