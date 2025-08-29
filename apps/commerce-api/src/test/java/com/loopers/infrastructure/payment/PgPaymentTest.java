@@ -52,7 +52,7 @@ class PgPaymentTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> expectedResponse = ApiResponse.success(transactionData);
 
-        when(pgV1FeignClient.request(eq("135135"), any(PgV1Dto.Request.Transaction.class)))
+        when(pgV1FeignClient.request(eq(1L), any(PgV1Dto.Request.Transaction.class)))
             .thenReturn(expectedResponse);
 
         // when
@@ -76,7 +76,7 @@ class PgPaymentTest {
             )
         );
 
-        when(pgV1FeignClient.request(eq("135135"), any(PgV1Dto.Request.Transaction.class)))
+        when(pgV1FeignClient.request(eq(1L), any(PgV1Dto.Request.Transaction.class)))
             .thenThrow(new RuntimeException("PG 시스템 오류"));
 
         // when & then
@@ -103,7 +103,7 @@ class PgPaymentTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> expectedResponse = ApiResponse.success(transactionData);
 
-        when(pgV1FeignClient.findTransaction(eq(transactionKey), eq("135135")))
+        when(pgV1FeignClient.findTransaction(eq(transactionKey), eq(1L)))
             .thenReturn(expectedResponse);
 
         // when

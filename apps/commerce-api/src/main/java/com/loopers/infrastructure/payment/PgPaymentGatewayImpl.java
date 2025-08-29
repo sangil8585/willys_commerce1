@@ -36,7 +36,7 @@ public class PgPaymentGatewayImpl implements PaymentGateway {
                 payment.getCallbackUrl()
             );
             
-            var response = pgV1FeignClient.request("135135", request);
+            var response = pgV1FeignClient.request(1L, request);
             
             if (response == null || response.data() == null) {
                 throw new CoreException(ErrorType.INTERNAL_ERROR, "PG 응답이 null입니다.");
@@ -85,7 +85,7 @@ public class PgPaymentGatewayImpl implements PaymentGateway {
         try {
             log.info("PG 트랜잭션 상세 조회: transactionKey={}", transactionKey);
             
-            var response = pgV1FeignClient.findTransaction(transactionKey, "135135");
+            var response = pgV1FeignClient.findTransaction(transactionKey, 1L);
             
             if (response == null || response.data() == null) {
                 throw new CoreException(ErrorType.INTERNAL_ERROR, "PG 트랜잭션 상세 응답이 null입니다.");

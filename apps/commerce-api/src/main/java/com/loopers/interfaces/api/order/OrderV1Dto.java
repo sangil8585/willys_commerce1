@@ -11,6 +11,9 @@ public class OrderV1Dto {
         public record Order(
             Long userId,
             String paymentType,
+            String cardType,
+            String cardNo,
+            String callbackUrl,
             List<Item> orderItems,
             List<Long> orderCouponIds
         ) {
@@ -18,7 +21,7 @@ public class OrderV1Dto {
                 List<OrderCriteria.Item> items = orderItems.stream()
                     .map(item -> new OrderCriteria.Item(item.productId(), item.quantity()))
                     .toList();
-                return new OrderCriteria.Order(userId, paymentType, items, orderCouponIds);
+                return new OrderCriteria.Order(userId, paymentType, cardType, cardNo, callbackUrl, items, orderCouponIds);
             }
         }
 

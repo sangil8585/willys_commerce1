@@ -111,12 +111,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of()
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (CoreException e) {
                     failureCount.incrementAndGet();
@@ -155,12 +163,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCriteria.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of()
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     // 실패 처리
@@ -196,12 +212,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, testCoupon.getId());
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of(testCoupon.getId())
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (CoreException e) {
                     failureCount.incrementAndGet();
@@ -241,12 +265,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of()
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (CoreException e) {
                     failureCount.incrementAndGet();
@@ -283,12 +315,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of()
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     // 실패 처리
@@ -323,12 +363,20 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
-                    List<OrderCommand.OrderItem> items = List.of(
-                        OrderCommand.OrderItem.of(testProduct.getId(), orderQuantity, testProduct.getPrice())
+                    List<OrderCriteria.Item> items = List.of(
+                        new OrderCriteria.Item(testProduct.getId(), orderQuantity)
                     );
-                    OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+                    OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                        userInfo.id(), 
+                        "CARD", 
+                        "VISA", 
+                        "1234567890123456", 
+                        "http://localhost:8080/callback",
+                        items, 
+                        List.of()
+                    );
                     
-                    orderFacade.createOrder(command);
+                    orderFacade.createOrder(orderCriteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failureCount.incrementAndGet();
@@ -371,12 +419,20 @@ public class OrderConcurrencyTest {
             pointService.charge(userInfo.userId(), 500L); 
 
             // when & then
-            List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+            List<OrderCriteria.Item> items = List.of(
+                new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
             );
-            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+            OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                userInfo.id(), 
+                "CARD", 
+                "VISA", 
+                "1234567890123456", 
+                "http://localhost:8080/callback",
+                items, 
+                List.of()
+            );
 
-            assertThatThrownBy(() -> orderFacade.createOrder(command))
+            assertThatThrownBy(() -> orderFacade.createOrder(orderCriteria))
                     .isInstanceOf(CoreException.class);
 
             ProductEntity updatedProduct = productService.findById(testProduct.getId()).orElseThrow();
@@ -390,13 +446,21 @@ public class OrderConcurrencyTest {
         @DisplayName("사용 불가능하거나 존재하지 않는 쿠폰일 경우 주문은 실패해야 한다")
         void 사용불가능한_쿠폰_주문실패_테스트() {
             // given - 존재하지 않는 쿠폰 ID
-            List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+            List<OrderCriteria.Item> items = List.of(
+                new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
             );
-            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items, 99999L); 
+            OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                userInfo.id(), 
+                "CARD", 
+                "VISA", 
+                "1234567890123456", 
+                "http://localhost:8080/callback",
+                items, 
+                List.of(99999L)
+            ); 
 
             // when & then
-            assertThatThrownBy(() -> orderFacade.createOrder(command))
+            assertThatThrownBy(() -> orderFacade.createOrder(orderCriteria))
                     .isInstanceOf(CoreException.class);
 
             // 재고가 차감되지 않았는지 확인
@@ -408,13 +472,21 @@ public class OrderConcurrencyTest {
         @DisplayName("재고가 존재하지 않거나 부족할 경우 주문은 실패해야 한다")
         void 재고부족_주문실패_테스트() {
             // given
-            List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+            List<OrderCriteria.Item> items = List.of(
+                new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
             );
-            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+            OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                userInfo.id(), 
+                "CARD", 
+                "VISA", 
+                "1234567890123456", 
+                "http://localhost:8080/callback",
+                items, 
+                List.of()
+            );
 
             // when & then
-            assertThatThrownBy(() -> orderFacade.createOrder(command))
+            assertThatThrownBy(() -> orderFacade.createOrder(orderCriteria))
                     .isInstanceOf(CoreException.class);
 
             // 재고가 차감되지 않았는지 확인
@@ -430,13 +502,21 @@ public class OrderConcurrencyTest {
             pointService.charge(userInfo.userId(), -currentPoints); 
             pointService.charge(userInfo.userId(), 500L); 
 
-            List<OrderCommand.OrderItem> items = List.of(
-                OrderCommand.OrderItem.of(testProduct.getId(), testProduct.getStock(), testProduct.getPrice())
+            List<OrderCriteria.Item> items = List.of(
+                new OrderCriteria.Item(testProduct.getId(), testProduct.getStock())
             );
-            OrderCommand.Create command = OrderCommand.Create.of(userInfo.id(), items);
+            OrderCriteria.Order orderCriteria = new OrderCriteria.Order(
+                userInfo.id(), 
+                "CARD", 
+                "VISA", 
+                "1234567890123456", 
+                "http://localhost:8080/callback",
+                items, 
+                List.of()
+            );
 
             // when & then
-            assertThatThrownBy(() -> orderFacade.createOrder(command))
+            assertThatThrownBy(() -> orderFacade.createOrder(orderCriteria))
                     .isInstanceOf(CoreException.class);
 
             ProductEntity updatedProduct = productService.findById(testProduct.getId()).orElseThrow();

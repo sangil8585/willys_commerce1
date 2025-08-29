@@ -68,6 +68,25 @@ public class ProductService {
     }
     
     @Transactional
+    public void reserveStock(Map<Long, Integer> itemQuantityMap) {
+        List<Long> ids = itemQuantityMap.keySet().stream().toList();
+        List<ProductEntity> products = productRepository.findByIds(ids);
+        if(ids.size() != products.size()) {
+            throw new CoreException(ErrorType.NOT_FOUND, "상품을 찾지 못했습니다");
+        }
+
+        for(ProductEntity product : products) {
+            Integer quantity = itemQuantityMap.get(product.getId());
+            if (product.getStock() < quantity) {
+                throw new CoreException(ErrorType.BAD_REQUEST, 
+                    "상품 " + product.getId() + "의 재고가 부족합니다. 현재: " + product.getStock() + ", 요청: " + quantity);
+            }
+        }
+
+        productRepository.save(products);
+    }
+    
+    @Transactional
     public Optional<ProductEntity> findByIdWithLockForLikes(Long productId) {
         return productRepository.findByIdWithLockForLikes(productId);
     }

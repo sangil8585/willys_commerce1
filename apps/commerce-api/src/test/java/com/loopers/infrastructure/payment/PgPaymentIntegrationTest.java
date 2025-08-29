@@ -43,7 +43,7 @@ class PgPaymentIntegrationTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> mockResponse = ApiResponse.success(transactionData);
 
-        when(pgV1FeignClient.request(eq("135135"), any(PgV1Dto.Request.Transaction.class)))
+        when(pgV1FeignClient.request(eq(1L), any(PgV1Dto.Request.Transaction.class)))
             .thenReturn(mockResponse);
         
         // when - 실제 결제 요청 테스트
@@ -90,7 +90,7 @@ class PgPaymentIntegrationTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> mockResponse = ApiResponse.success(transactionData);
 
-        when(pgV1FeignClient.request(eq("135135"), any(PgV1Dto.Request.Transaction.class)))
+        when(pgV1FeignClient.request(eq(1L), any(PgV1Dto.Request.Transaction.class)))
             .thenReturn(mockResponse);
         
         // when
@@ -127,7 +127,7 @@ class PgPaymentIntegrationTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> paymentResponse = ApiResponse.success(paymentTransactionData);
 
-        when(pgV1FeignClient.request(eq("135135"), any(PgV1Dto.Request.Transaction.class)))
+        when(pgV1FeignClient.request(eq(1L), any(PgV1Dto.Request.Transaction.class)))
             .thenReturn(paymentResponse);
         
         PaymentInfo paymentInfo = pgPaymentGateway.requestPayment(payment);
@@ -145,7 +145,7 @@ class PgPaymentIntegrationTest {
 
         ApiResponse<PgV1Dto.Response.Transaction> statusResponse = ApiResponse.success(statusTransactionData);
 
-        when(pgV1FeignClient.findTransaction(eq("20250816:TR:98765"), eq("135135")))
+        when(pgV1FeignClient.findTransaction(eq("20250816:TR:98765"), eq(1L)))
             .thenReturn(statusResponse);
         
         // when

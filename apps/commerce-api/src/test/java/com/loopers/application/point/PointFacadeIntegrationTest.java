@@ -44,7 +44,7 @@ public class PointFacadeIntegrationTest {
     @BeforeEach
     void setUp() {
         UserCommand.Create createCommand = new UserCommand.Create(
-                "sangil8585",
+                1L,
                 UserEntity.Gender.MALE,
                 "1993-02-24",
                 "sangil8585@naver.com"
@@ -89,7 +89,7 @@ public class PointFacadeIntegrationTest {
             String nonExist = "nonExist";
 
             // when
-            PointInfo pointInfo = pointFacade.getPointInfo(nonExist);
+            PointInfo pointInfo = pointFacade.getPointInfo(Long.parseLong(nonExist));
 
             // then
             assertNull(pointInfo);
@@ -111,7 +111,7 @@ public class PointFacadeIntegrationTest {
 
             // when
             CoreException coreException = assertThrows(CoreException.class, () -> {
-                pointFacade.chargePoint(nonExist, amount);
+                pointFacade.chargePoint(Long.parseLong(nonExist), amount);
             });
 
             // then - 존재하지 않는 사용자는 404 NOT_FOUND가 적절
@@ -246,7 +246,7 @@ public class PointFacadeIntegrationTest {
             for (int i = 0; i < threadCount; i++) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     try {
-                        pointService.deductPoint(nonExistentUserId, deductAmount);
+                        pointService.deductPoint(Long.parseLong(nonExistentUserId), deductAmount);
                     } catch (Exception e) {
                         failureCount.incrementAndGet();
                     }

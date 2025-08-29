@@ -112,7 +112,7 @@ public class UserV1ApiE2ETest {
             // when
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), responseType);
 
 
             // then
@@ -134,7 +134,7 @@ public class UserV1ApiE2ETest {
             // when
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {};
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+                    testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), responseType);
 
 
             // then

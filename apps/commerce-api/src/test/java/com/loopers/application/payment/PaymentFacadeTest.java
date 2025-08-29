@@ -34,7 +34,7 @@ class PaymentFacadeTest {
     @BeforeEach
     void setUp() {
         criteria = new PaymentCriteria(
-            "135135",
+            1L,
             "1351039135",
             "SAMSUNG",
             "1234-5678-9814-1451",
@@ -107,7 +107,7 @@ class PaymentFacadeTest {
         @Test
         void findsPaymentByOrderId() {
             // arrange
-            Long userId = "135135";
+            Long userId = 1L;
             String orderId = "1351039135";
             // TODO: PaymentService 구현 후 테스트 수정
 
