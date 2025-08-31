@@ -17,7 +17,7 @@ public class PointEntity extends BaseEntity {
     private Long id;
     
     @Column(name = "user_id", nullable = false, unique = true)
-    private String userId;
+    private Long userId;
     
     @Column(name = "amount", nullable = false)
     private Long amount;
@@ -26,40 +26,24 @@ public class PointEntity extends BaseEntity {
     @Column(name = "version")
     private Long version;
 
-    public PointEntity(String userId, Long amount) {
+    public PointEntity(Long userId, Long amount) {
         this.userId = userId;
         this.amount = amount;
         this.version = 0L;
     }
 
-    public PointEntity(Long id, String userId, Long amount) {
+    public PointEntity(Long id, Long userId, Long amount) {
         this.id = id;
         this.userId = userId;
         this.amount = amount;
         this.version = 0L;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
     public void charge(Long chargeAmount) {
         this.amount += chargeAmount;
     }
 
-    public static PointEntity create(String userId) {
+    public static PointEntity create(Long userId) {
         return new PointEntity(userId, 0L);
     }
 } 

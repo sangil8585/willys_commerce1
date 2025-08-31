@@ -13,13 +13,13 @@ import java.util.Optional;
 public class PointService {
     private final PointRepository pointRepository;
 
-    public Optional<Long> get(String userId) {
+    public Optional<Long> get(Long userId) {
         return pointRepository.getPointByUserId(userId);
     }
 
     // 낙관적 락을 사용한 포인트 충전
     @Transactional
-    public Long charge(String userId, Long amount) {
+    public Long charge(Long userId, Long amount) {
         // 낙관적 락으로 포인트 조회
         PointEntity point = pointRepository.findByUserIdWithOptimisticLock(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트 정보를 찾을 수 없습니다."));
@@ -32,7 +32,7 @@ public class PointService {
     
     // 비관락을 사용해서 포인트 차감하는 메서드
     @Transactional
-    public void deductPoint(String userId, Long amount) {
+    public void deductPoint(Long userId, Long amount) {
         // 비관적 락으로 포인트 조회. 다른 트랜잭션이 끝날때까지 대기한다.
         PointEntity point = pointRepository.findByUserIdWithLock(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트 정보를 찾을 수 없습니다."));
@@ -45,7 +45,7 @@ public class PointService {
         pointRepository.save(point);
     }
     
-    public void createPointForUser(String userId) {
+    public void createPointForUser(Long userId) {
         pointRepository.createPointForUser(userId);
     }
 } 

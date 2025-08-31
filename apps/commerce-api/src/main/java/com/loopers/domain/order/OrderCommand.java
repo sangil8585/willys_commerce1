@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class OrderCommand {
     public record Create(
             Long userId,
@@ -18,7 +21,7 @@ public class OrderCommand {
             return new Create(userId, items, couponId);
         }
 
-        public Map<Long, Integer> getItemQuantityMap() {
+        public Map<Long, Long> getItemQuantityMap() {
             return this.items.stream().collect(Collectors.toMap(
                     item -> item.productId, item -> item.quantity
             ));
@@ -27,10 +30,10 @@ public class OrderCommand {
 
     public record OrderItem(
             Long productId,
-            Integer quantity,
+            Long quantity,
             Long price
     ) {
-        public static OrderItem of(Long productId, Integer quantity, Long price) {
+        public static OrderItem of(Long productId, Long quantity, Long price) {
             return new OrderItem(productId, quantity, price);
         }
     }

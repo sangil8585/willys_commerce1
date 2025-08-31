@@ -39,7 +39,7 @@ class PaymentFacadeIntegrationTest {
     @BeforeEach
     void setUp() {
         criteria = new PaymentCriteria(
-            "135135",
+            1L,
             "1351039135",
             "SAMSUNG",
             "1234-5678-9814-1451",
@@ -80,7 +80,7 @@ class PaymentFacadeIntegrationTest {
             // 실제 결제 데이터 생성
             paymentEntity = paymentService.createPayment(
                 com.loopers.domain.payment.PaymentCommand.Create.of(
-                    135135L,
+                    1L,
                     "1351039135",
                     "SAMSUNG",
                     "1234-5678-9814-1451",
@@ -94,7 +94,7 @@ class PaymentFacadeIntegrationTest {
         @Test
         void findsPaymentByOrderId() {
             // arrange
-            String userId = "135135";
+            Long userId = 1L;
             String orderId = "1351039135";
 
             // act
@@ -109,7 +109,7 @@ class PaymentFacadeIntegrationTest {
         @Test
         void throwsException_whenOrderIdNotFound() {
             // arrange
-            String userId = "135135";
+            Long userId = 1L;
             String orderId = "NON_EXISTENT";
 
             // act & assert

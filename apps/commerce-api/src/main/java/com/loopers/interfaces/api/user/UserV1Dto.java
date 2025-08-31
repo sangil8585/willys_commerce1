@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class UserV1Dto {
     public record SignUpRequest(
             @NotNull
-            String userId,
+            Long userId,
             @NotNull
             String gender,
             @NotNull
@@ -28,7 +28,7 @@ public class UserV1Dto {
 
     public record UserResponse(
             Long id,
-            String userId,
+            Long userId,
             String gender,
             String birthDate,
             String email

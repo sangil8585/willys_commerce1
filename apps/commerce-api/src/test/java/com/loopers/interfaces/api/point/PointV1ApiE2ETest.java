@@ -61,7 +61,7 @@ public class PointV1ApiE2ETest {
         void 포인트조회_성공시_보유_포인트_반환() {
             // given
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"
@@ -109,7 +109,7 @@ public class PointV1ApiE2ETest {
         void 천원이상_유저가_충전하면_보유_총량_응답() {
             //given
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"
@@ -135,7 +135,7 @@ public class PointV1ApiE2ETest {
         void 존재하지_않는_유저_요청시_404응답() {
             // given
             PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(
-                    "sangil",
+                    1L,
                     1000L
             );
 

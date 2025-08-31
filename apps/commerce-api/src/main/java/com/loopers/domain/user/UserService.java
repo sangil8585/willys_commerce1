@@ -27,7 +27,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<UserEntity> findByUserId(String userId) {
+    public Optional<UserEntity> findByUserId(Long userId) {
 
         // null을 방지하기위한 optional, userEntity를 매핑해준다.
         // X_USER_ID가 PK ID인지 로그인 ID인지 햇갈림..

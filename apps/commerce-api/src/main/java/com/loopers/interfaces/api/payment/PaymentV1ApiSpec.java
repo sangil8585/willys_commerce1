@@ -18,7 +18,7 @@ public interface PaymentV1ApiSpec {
     )
     ApiResponse<PaymentResponse> requestPayment(
             @Schema(name = "사용자 ID", description = "결제 요청하는 사용자의 ID")
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @Schema(name = "결제 요청", description = "카드 결제 요청 객체")
             @RequestBody PaymentRequest request
     );
@@ -29,7 +29,7 @@ public interface PaymentV1ApiSpec {
     )
     ApiResponse<PaymentInfoResponse> getPaymentInfo(
             @Schema(name = "사용자 ID", description = "결제 정보를 조회하는 사용자의 ID")
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @Schema(name = "결제 ID", description = "조회할 결제의 ID")
             String paymentId
     );
@@ -40,7 +40,7 @@ public interface PaymentV1ApiSpec {
     )
     ApiResponse<PaymentInfoResponse> getPaymentByOrderId(
             @Schema(name = "사용자 ID", description = "결제 정보를 조회하는 사용자의 ID")
-            @RequestHeader("X-USER-ID") String userId,
+            @RequestHeader("X-USER-ID") Long userId,
             @Schema(name = "주문 ID", description = "조회할 주문의 ID")
             @RequestParam String orderId
     );

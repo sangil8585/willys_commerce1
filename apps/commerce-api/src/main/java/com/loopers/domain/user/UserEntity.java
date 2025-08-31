@@ -12,11 +12,10 @@ import lombok.Getter;
 @Entity
 @Table(name = "member")
 public class UserEntity extends BaseEntity {
-    private static final String USER_ID_REGEX = "^[a-zA-Z0-9]{1,10}$";
     private static final String USER_EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final String USER_BIRTH_REGEX = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$";
 
-    private String userId;
+    private Long userId;
     private Gender gender;
     private String birth;
     private String email;
@@ -29,14 +28,8 @@ public class UserEntity extends BaseEntity {
 
     protected UserEntity() {}
 
-    UserEntity(String userId, Gender gender, String birth, String email) {
+    UserEntity(Long userId, Gender gender, String birth, String email) {
         super();
-        if (!userId.matches(USER_ID_REGEX)) {
-            throw new CoreException(
-                    ErrorType.BAD_REQUEST,
-                    "ID는 영문 및 숫자 10자 이내 형식에 맞춰주세요."
-            );
-        }
         
         if (!birth.matches(USER_BIRTH_REGEX)) {
             throw new CoreException(

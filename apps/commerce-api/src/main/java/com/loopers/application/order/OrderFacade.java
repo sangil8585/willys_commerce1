@@ -2,69 +2,203 @@ package com.loopers.application.order;
 
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.application.order.OrderCriteria;
 import com.loopers.domain.order.OrderEntity;
+import com.loopers.application.order.OrderResult;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.point.PointService;
+import com.loopers.domain.order.OrderEvent;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.payment.PaymentEntity;
 import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OrderFacade {
-
+    
+    private final OrderService orderService;
     private final ProductService productService;
     private final UserService userService;
-    private final OrderService orderService;
-    private final PointService pointService;
     private final CouponService couponService;
-
+    private final PaymentService paymentService;
+    private final ApplicationEventPublisher eventPublisher;
+    
     @Transactional
-    public OrderInfo createOrder(OrderCommand.Create command) {
-        List<OrderCommand.OrderItem> itemsWithPrice = command.items().stream()
-                .map(item -> {
-                    ProductEntity product = productService.findByIdWithLockForLikes(item.productId())
-                            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
-                    return OrderCommand.OrderItem.of(item.productId(), item.quantity(), product.getPrice());
-                })
-                .collect(Collectors.toList());
+    public OrderResult.OrderResponse createOrder(OrderCriteria.Order criteria) {
+        // 유저 확인
+        userService.findByUserId(criteria.userId()).orElseThrow(() -> 
+            new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다: " + criteria.userId())
+        );
         
-        OrderCommand.Create commandWithPrice = new OrderCommand.Create(command.userId(), itemsWithPrice, command.couponId());
-        
-        Long totalAmount = itemsWithPrice.stream()
-                .mapToLong(item -> item.price() * item.quantity())
-                .sum();
-
-        Long discountAmount = 0L;
-        // 쿠폰 사용을 먼저 처리 (비관적 락으로 동시성 제어)
-        String userId = userService.findById(command.userId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
-                .getUserId();
-
-        if(command.couponId() != null) {
-            discountAmount = couponService.calculateDiscount(command.couponId(), userId, totalAmount);
-            couponService.useCoupon(command.couponId(), userId, totalAmount);
+        // 재고 확인 (락 걸기)
+        List<ProductEntity> targetProducts = productService.findByIds(criteria.getProductIds());
+        if (targetProducts.size() != criteria.getProductIds().size()) {
+            throw new CoreException(ErrorType.NOT_FOUND, "일부 상품을 찾을 수 없습니다");
         }
-
-        Long finalAmount = totalAmount - discountAmount;
-        // 여기서 deduct자체가 검증이니까 valicate를 할필요없다
-        productService.deductStock(command.getItemQuantityMap());
-        pointService.deductPoint(userId, finalAmount);
-
-        OrderEntity order = OrderEntity.from(commandWithPrice);
-        order.applyDiscount(discountAmount);
-
-        OrderEntity savedOrder = orderService.save(order);
         
-        return OrderInfo.from(savedOrder);
+        // 상품 가격 매핑 생성
+        Map<Long, Long> productPriceMap = targetProducts.stream()
+                .collect(Collectors.toMap(
+                        ProductEntity::getId,
+                        ProductEntity::getPrice
+                ));
+        
+        // 주문 아이템 생성
+        OrderCommand.Create orderCommand = new OrderCommand.Create(
+                criteria.userId(),
+                criteria.items().stream()
+                        .map(item -> new OrderCommand.OrderItem(
+                                item.productId(), 
+                                item.quantity(),
+                                productPriceMap.get(item.productId())
+                        ))
+                        .toList(),
+                criteria.couponIds().isEmpty() ? null : criteria.couponIds().get(0)
+        );
+        
+        Long totalAmount = criteria.items().stream()
+                .mapToLong(item -> productPriceMap.get(item.productId()) * item.quantity())
+                .sum();
+        log.debug("최초 주문 총액 계산(쿠폰미적용): {}", totalAmount);
+        
+        // 주문 생성 (CREATED 상태로 생성, 재고 차감 없음)
+        OrderEntity createdOrder = orderService.createOrder(orderCommand, productPriceMap);
+        
+        // 결제 정보 생성 (PENDING 상태)
+        PaymentCommand.Create paymentCommand = PaymentCommand.Create.of(
+                criteria.userId(),
+                createdOrder.getId().toString(),
+                criteria.cardType(),
+                criteria.cardNo(),
+                String.valueOf(totalAmount),
+                criteria.callbackUrl()
+        );
+        
+        PaymentEntity payment = paymentService.createPayment(paymentCommand);
+        
+        log.info("주문 생성 완료 - orderId: {}, 총액: {}, 결제ID: {}", 
+                createdOrder.getId(), totalAmount, payment.getPaymentId());
+        
+        // 1. 쿠폰 사용 이벤트 발행 (쿠폰이 있는 경우)
+        if(criteria.couponIds() != null && !criteria.couponIds().isEmpty()) {
+            Long couponId = criteria.couponIds().get(0);
+            OrderEvent.CouponUsageRequested couponEvent = OrderEvent.CouponUsageRequested.of(
+                    createdOrder.getId(),
+                    criteria.userId(),
+                    couponId,
+                    totalAmount
+            );
+            eventPublisher.publishEvent(couponEvent);
+            log.debug("쿠폰 사용 이벤트 발행 - orderId: {}, couponId: {}", createdOrder.getId(), couponId);
+        }
+        
+        // 2. 재고 예약 이벤트 발행
+        List<OrderEvent.StockReservationItem> stockItems = criteria.items().stream()
+                .map(item -> OrderEvent.StockReservationItem.of(item.productId(), item.quantity().intValue()))
+                .toList();
+        
+        OrderEvent.StockReservationRequested stockEvent = OrderEvent.StockReservationRequested.of(
+                createdOrder.getId(),
+                criteria.userId(),
+                stockItems
+        );
+        eventPublisher.publishEvent(stockEvent);
+        log.debug("재고 예약 이벤트 발행 - orderId: {}, items: {}", createdOrder.getId(), stockItems);
+        
+        // 3. 주문 생성 완료 이벤트 발행
+        OrderEvent.Completed orderCompletedEvent = OrderEvent.Completed.of(
+                createdOrder.getId(),
+                createdOrder.getUserId(),
+                createdOrder.getTotalAmount(),
+                createdOrder.getDiscountAmount()
+        );
+        eventPublisher.publishEvent(orderCompletedEvent);
+        log.debug("주문 생성 완료 이벤트 발행 - orderId: {}", createdOrder.getId());
+        
+        // 결과 반환
+        return OrderResult.OrderResponse.from(createdOrder, payment.getPaymentId());
     }
-
+    
+    /**
+     * 결제 완료 후 주문 완료 처리
+     * Payment 도메인에서 호출하여 주문 상태를 완료로 변경하고 재고를 차감
+     */
+    @Transactional
+    public void completeOrderAfterPayment(Long orderId) {
+        OrderEntity order = orderService.findById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문을 찾을 수 없습니다: " + orderId));
+        
+        if (!"CREATED".equals(order.getState())) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "처리할 수 없는 주문 상태입니다: " + order.getState());
+        }
+        
+        try {
+            // 주문 완료 처리
+            order.complete();
+            orderService.save(order);
+            
+            PaymentEntity payment = paymentService.findByOrderId(orderId.toString());
+            
+            // 결제 완료 이벤트 발행
+            OrderEvent.PaymentCompleted paymentCompletedEvent = OrderEvent.PaymentCompleted.of(
+                    order.getId(),
+                    order.getUserId(),
+                    payment.getPaymentId(),
+                    order.getFinalAmount()
+            );
+            eventPublisher.publishEvent(paymentCompletedEvent);
+            
+            // 데이터 플랫폼 전송 이벤트 발행
+            OrderEvent.DataPlatformSent dataPlatformEvent = OrderEvent.DataPlatformSent.of(
+                    order.getId(),
+                    order.getUserId(),
+                    "ORDER_COMPLETED"
+            );
+            eventPublisher.publishEvent(dataPlatformEvent);
+            
+            log.info("결제 완료 후 주문 완료 처리 완료 - orderId: {}, 재고 차감 완료", orderId);
+            
+        } catch (Exception e) {
+            // 주문 실패 처리
+            order.markAsFailed();
+            orderService.save(order);
+            
+            log.error("결제 완료 후 주문 처리 실패 - orderId: {}, error: {}", orderId, e.getMessage());
+            throw new CoreException(ErrorType.INTERNAL_ERROR, "주문 처리에 실패했습니다: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 결제 실패 시 주문 취소 처리
+     * Payment 도메인에서 호출하여 주문 상태를 취소로 변경합니다.
+     */
+    @Transactional
+    public void cancelOrderAfterPaymentFailure(Long orderId, String reason) {
+        OrderEntity order = orderService.findById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문을 찾을 수 없습니다: " + orderId));
+        
+        if (!"CREATED".equals(order.getState())) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "취소할 수 없는 주문 상태입니다: " + order.getState());
+        }
+        
+        // 주문 취소 처리
+        order.cancel();
+        orderService.save(order);
+        
+        log.info("결제 실패로 인한 주문 취소 완료 - orderId: {}, 사유: {}", orderId, reason);
+    }
 } 

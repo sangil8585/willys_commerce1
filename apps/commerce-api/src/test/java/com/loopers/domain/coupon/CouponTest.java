@@ -14,7 +14,7 @@ class CouponTest {
     @DisplayName("쿠폰 생성 시 기본값이 올바르게 설정되어야 한다")
     void 쿠폰_생성_테스트() {
         // given
-        String userId = "sangil8585";
+        Long userId = 1L;
         String name = "갓 태어난 쿠폰";
         CouponType type = CouponType.FIXED_AMOUNT;
         Long discountValue = 1000L;
@@ -42,7 +42,7 @@ class CouponTest {
     void 정액_할인_쿠폰_계산_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "1000원 할인 쿠폰",
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -64,7 +64,7 @@ class CouponTest {
     void 정률_할인_쿠폰_계산_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "10% 정률할인 쿠폰",
             CouponType.PERCENTAGE, 
             10L,
@@ -86,7 +86,7 @@ class CouponTest {
     void 정률_할인_쿠폰_최대할인금액_제한_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "20% 정률할인 쿠폰",
             CouponType.PERCENTAGE, 
             20L,
@@ -109,7 +109,7 @@ class CouponTest {
     void 최소주문금액_미달_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "1000원 쿠폰",
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -129,7 +129,7 @@ class CouponTest {
     void 만료된_쿠폰_사용불가_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "만료된 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -150,7 +150,7 @@ class CouponTest {
     void 쿠폰_사용_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "테스트 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -173,7 +173,7 @@ class CouponTest {
     void 이미_사용된_쿠폰_재사용_예외_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "테스트 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -194,7 +194,7 @@ class CouponTest {
     void 만료된_쿠폰_사용_예외_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "만료된 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -214,7 +214,7 @@ class CouponTest {
     void 사용된_쿠폰_사용불가_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "테스트 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             1000L, 
@@ -235,7 +235,7 @@ class CouponTest {
     void 할인금액_주문금액_초과_방지_테스트() {
         // given
         CouponEntity coupon = CouponEntity.create(
-            "sangil8585",
+            1L,
             "테스트 쿠폰", 
             CouponType.FIXED_AMOUNT, 
             5000L, // 할인 금액 5000원

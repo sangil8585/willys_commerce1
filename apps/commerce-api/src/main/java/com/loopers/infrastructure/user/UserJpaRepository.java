@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
 
     // jpa가 동적으로 메서드를 구현해줌
-    boolean existsByUserId(String userId);
+    boolean existsByUserId(Long userId);
 
-    Optional<UserEntity> findByUserId(String userId);
+    Optional<UserEntity> findByUserId(Long userId);
 }

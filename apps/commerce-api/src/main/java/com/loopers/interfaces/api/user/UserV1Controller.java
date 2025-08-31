@@ -35,7 +35,7 @@ public class UserV1Controller implements UserV1Spec{
     @GetMapping("/me")
     @Override
     public ApiResponse<UserV1Dto.UserResponse> getMyInfo(
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader("X-USER-ID") Long userId
     ) {
         UserInfo userInfo = userFacade.findByUserId(userId);
 

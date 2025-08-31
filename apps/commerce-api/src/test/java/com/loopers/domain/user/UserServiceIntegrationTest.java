@@ -45,7 +45,7 @@ public class UserServiceIntegrationTest {
         void 회원가입시_유저가_저장된다() {
             // given
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"
@@ -65,7 +65,7 @@ public class UserServiceIntegrationTest {
             // given
             // createCommand를 두번 signUp
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"
@@ -95,7 +95,7 @@ public class UserServiceIntegrationTest {
         void 아이디가_존재하면_유저정보_반환() {
             // given
             UserCommand.Create createCommand = new UserCommand.Create(
-                    "sangil8585",
+                    1L,
                     UserEntity.Gender.MALE,
                     "1993-02-24",
                     "asdfas@naver.com"
@@ -103,7 +103,7 @@ public class UserServiceIntegrationTest {
             userFacade.signUp(createCommand);
 
             // when
-            UserInfo result = userFacade.findByUserId("sangil8585");
+            UserInfo result = userFacade.findByUserId(1L);
 
             // then
             assertEquals(createCommand.userId(), result.userId());
@@ -116,11 +116,10 @@ public class UserServiceIntegrationTest {
         @Test
         void 아이디가_존재하지않으면_CoreException_발생() {
             // given
-            String nonExist = "nonExist";
 
             // when & then
             CoreException coreException = assertThrows(CoreException.class, () ->
-                    userFacade.findByUserId(nonExist));
+                    userFacade.findByUserId(999L));
 
             assertThat(coreException.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
             assertThat(coreException.getMessage()).isEqualTo("존재하지 않는 사용자입니다.");

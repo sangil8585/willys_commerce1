@@ -12,11 +12,11 @@ public interface CouponRepository {
     
     Optional<CouponEntity> findByIdWithLock(Long id);
     
-    List<CouponEntity> findByUserId(String userId);
+    List<CouponEntity> findByUserId(Long userId);
     
-    List<CouponEntity> findByUserIdAndIsUsedFalse(String userId);
+    List<CouponEntity> findByUserIdAndIsUsedFalse(Long userId);
     
-    List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(String userId);
+    List<CouponEntity> findByUserIdAndIsUsedFalseAndExpiredAtAfter(Long userId);
     
     void deleteById(Long id);
 } 

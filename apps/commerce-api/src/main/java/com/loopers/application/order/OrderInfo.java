@@ -38,7 +38,7 @@ public record OrderInfo(
             return new OrderItemInfo(
                     orderItemEntity.getId(),
                     orderItemEntity.getProductId(),
-                    orderItemEntity.getQuantity(),
+                    orderItemEntity.getQuantity().intValue(),
                     orderItemEntity.getPrice()
             );
         }
