@@ -44,8 +44,8 @@ public class OrderEventHandler {
         }
     }
     
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async
+    // BEFORE_COMMIT으로 변경
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleCouponUsageRequested(OrderEvent.CouponUsageRequested event) {
         log.info("쿠폰 사용 요청 이벤트 처리 시작 - orderId: {}, couponId: {}, 주문금액: {}", 
                 event.orderId(), event.couponId(), event.orderAmount());
@@ -62,11 +62,13 @@ public class OrderEventHandler {
         } catch (Exception e) {
             log.error("쿠폰 사용 이벤트 처리 중 오류 발생 - orderId: {}, couponId: {}, error: {}", 
                     event.orderId(), event.couponId(), e.getMessage());
+            // 🚨 BEFORE_COMMIT이므로 예외를 다시 던져서 주문 트랜잭션을 롤백시킴
+            throw new RuntimeException("쿠폰 사용 처리 실패: " + e.getMessage(), e);
         }
     }
     
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async
+    // BEFORE_COMMIT으로 변경
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleStockReservationRequested(OrderEvent.StockReservationRequested event) {
         log.info("재고 예약 요청 이벤트 처리 시작 - orderId: {}, userId: {}, items: {}", 
                 event.orderId(), event.userId(), event.items());
@@ -79,15 +81,16 @@ public class OrderEventHandler {
                             OrderEvent.StockReservationItem::quantity
                     ));
             
-            // 재고 예약 (재고 차감은 하지 않고 예약만)
+            // 재고 예약 (제고 차감은 하지 않고 예약만)
             productService.reserveStock(stockReservationMap);
             
             log.info("재고 예약 완료 - orderId: {}, items: {}", event.orderId(), event.items());
             
-            
         } catch (Exception e) {
             log.error("재고 예약 이벤트 처리 중 오류 발생 - orderId: {}, error: {}", 
                     event.orderId(), e.getMessage());
+            // 예외를 다시 던져서 주문 트랜잭션을 롤백 하도록 변경
+            throw new RuntimeException("재고 예약 처리 실패: " + e.getMessage(), e);
         }
     }
     
