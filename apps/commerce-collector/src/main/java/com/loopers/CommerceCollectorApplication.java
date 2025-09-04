@@ -11,7 +11,7 @@ import java.util.TimeZone;
 @EnableAsync
 @ConfigurationPropertiesScan
 @SpringBootApplication
-public class ConsumerApiApplication {
+public class CommerceCollectorApplication {
 
     @PostConstruct
     public void started() {
@@ -20,6 +20,6 @@ public class ConsumerApiApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(ConsumerApiApplication.class, args);
+        SpringApplication.run(CommerceCollectorApplication.class, args);
     }
 }
