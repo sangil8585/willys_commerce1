@@ -6,6 +6,7 @@ import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.error.CoreException;
+import com.loopers.config.kafka.KafkaEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.event.TransactionPhase;
@@ -19,6 +20,7 @@ public class LikeEventHandler {
     
     private final LikeService likeService;
     private final ProductService productService;
+    private final KafkaEventPublisher kafkaEventPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleLikeCreated(LikeEvent.Created event) {
@@ -36,6 +38,21 @@ public class LikeEventHandler {
                     event.userId(), event.productId());
         } catch (CoreException e) {
             log.error("좋아요 생성 이벤트 처리 중 오류 발생 - userId: {}, productId: {}, error: {}", 
+                    event.userId(), event.productId(), e.getMessage());
+        }
+    }
+    
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleLikeCreatedAfterCommit(LikeEvent.Created event) {
+        try {
+            // Kafka로 좋아요 생성 이벤트 발행
+            com.loopers.event.like.LikeEvent kafkaEvent = com.loopers.event.like.LikeEvent.likeCreated(event.userId(), event.productId());
+            kafkaEventPublisher.publishEvent("like-events", kafkaEvent);
+            
+            log.info("좋아요 생성 이벤트 발행 완료 - userId: {}, productId: {}", 
+                    event.userId(), event.productId());
+        } catch (Exception e) {
+            log.error("좋아요 생성 이벤트 발행 중 오류 발생 - userId: {}, productId: {}, error: {}", 
                     event.userId(), event.productId(), e.getMessage());
         }
     }
@@ -61,6 +78,21 @@ public class LikeEventHandler {
             
         } catch (Exception e) {
             log.error("좋아요 삭제 이벤트 처리 중 오류 발생 - userId: {}, productId: {}, error: {}", 
+                    event.userId(), event.productId(), e.getMessage());
+        }
+    }
+    
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleLikeRemovedAfterCommit(LikeEvent.Removed event) {
+        try {
+            // Kafka로 좋아요 삭제 이벤트 발행
+            com.loopers.event.like.LikeEvent kafkaEvent = com.loopers.event.like.LikeEvent.likeRemoved(event.userId(), event.productId());
+            kafkaEventPublisher.publishEvent("like-events", kafkaEvent);
+            
+            log.info("좋아요 삭제 이벤트 발행 완료 - userId: {}, productId: {}", 
+                    event.userId(), event.productId());
+        } catch (Exception e) {
+            log.error("좋아요 삭제 이벤트 발행 중 오류 발생 - userId: {}, productId: {}, error: {}", 
                     event.userId(), event.productId(), e.getMessage());
         }
     }
