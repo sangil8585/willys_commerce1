@@ -6,6 +6,7 @@ import com.loopers.domain.product.ProductService;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.order.OrderEntity;
 import com.loopers.config.kafka.KafkaEventPublisher;
+import com.loopers.event.order.OrderKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.event.TransactionPhase;
@@ -39,13 +40,13 @@ public class OrderEventHandler {
                     .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + event.orderId()));
             
             // Kafka로 주문 완료 이벤트 발행
-            com.loopers.event.order.OrderEvent kafkaEvent = com.loopers.event.order.OrderEvent.orderCompleted(
+            OrderKafkaEvent kafkaEvent = OrderKafkaEvent.orderCompleted(
                 event.orderId(),
                 event.userId(),
                 BigDecimal.valueOf(event.totalAmount()),
                 BigDecimal.valueOf(event.discountAmount()),
                 order.getItems().stream()
-                    .map(item -> new com.loopers.event.order.OrderEvent.OrderItem(
+                    .map(item -> new OrderKafkaEvent.OrderItem(
                         item.getProductId(),
                         item.getQuantity().intValue(),
                         BigDecimal.valueOf(item.getPrice())
@@ -65,7 +66,6 @@ public class OrderEventHandler {
         }
     }
     
-    // BEFORE_COMMIT으로 변경
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleCouponUsageRequested(OrderEvent.CouponUsageRequested event) {
         log.info("쿠폰 사용 요청 이벤트 처리 시작 - orderId: {}, couponId: {}, 주문금액: {}", 
@@ -83,7 +83,6 @@ public class OrderEventHandler {
         } catch (Exception e) {
             log.error("쿠폰 사용 이벤트 처리 중 오류 발생 - orderId: {}, couponId: {}, error: {}", 
                     event.orderId(), event.couponId(), e.getMessage());
-            // 🚨 BEFORE_COMMIT이므로 예외를 다시 던져서 주문 트랜잭션을 롤백시킴
             throw new RuntimeException("쿠폰 사용 처리 실패: " + e.getMessage(), e);
         }
     }
@@ -122,7 +121,6 @@ public class OrderEventHandler {
                 event.orderId(), event.paymentId(), event.finalAmount());
         
         try {
-            // 실제 재고 차감 (결제 완료 후)
             OrderEntity order = orderService.findById(event.orderId())
                     .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + event.orderId()));
             
@@ -134,12 +132,12 @@ public class OrderEventHandler {
             productService.deductStock(stockDeductionMap);
             
             // Kafka로 결제 완료 이벤트 발행
-            com.loopers.event.order.OrderEvent kafkaEvent = com.loopers.event.order.OrderEvent.paymentCompleted(
+            OrderKafkaEvent kafkaEvent = OrderKafkaEvent.paymentCompleted(
                 event.orderId(),
                 order.getUserId(),
                 BigDecimal.valueOf(event.finalAmount()),
                 order.getItems().stream()
-                    .map(item -> new com.loopers.event.order.OrderEvent.OrderItem(
+                    .map(item -> new OrderKafkaEvent.OrderItem(
                         item.getProductId(),
                         item.getQuantity().intValue(),
                         BigDecimal.valueOf(item.getPrice())

@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderEvent extends BaseEvent {
+public class OrderKafkaEvent extends BaseEvent {
     
     private Long orderId;
     private Long userId;
@@ -20,7 +20,7 @@ public class OrderEvent extends BaseEvent {
     private String orderState;
     private List<OrderItem> items;
     
-    public OrderEvent(String eventType, Long orderId, Long userId, BigDecimal totalAmount, 
+    public OrderKafkaEvent(String eventType, Long orderId, Long userId, BigDecimal totalAmount, 
                      BigDecimal discountAmount, String orderState, List<OrderItem> items) {
         super(eventType, "commerce-api", "1.0");
         this.orderId = orderId;
@@ -47,14 +47,14 @@ public class OrderEvent extends BaseEvent {
     }
     
     // 주문 완료 이벤트
-    public static OrderEvent orderCompleted(Long orderId, Long userId, BigDecimal totalAmount, 
+    public static OrderKafkaEvent orderCompleted(Long orderId, Long userId, BigDecimal totalAmount, 
                                           BigDecimal discountAmount, List<OrderItem> items) {
-        return new OrderEvent("OrderCompleted", orderId, userId, totalAmount, discountAmount, "COMPLETED", items);
+        return new OrderKafkaEvent("OrderCompleted", orderId, userId, totalAmount, discountAmount, "COMPLETED", items);
     }
     
     // 결제 완료 이벤트
-    public static OrderEvent paymentCompleted(Long orderId, Long userId, BigDecimal finalAmount, 
+    public static OrderKafkaEvent paymentCompleted(Long orderId, Long userId, BigDecimal finalAmount, 
                                             List<OrderItem> items) {
-        return new OrderEvent("PaymentCompleted", orderId, userId, finalAmount, BigDecimal.ZERO, "PAID", items);
+        return new OrderKafkaEvent("PaymentCompleted", orderId, userId, finalAmount, BigDecimal.ZERO, "PAID", items);
     }
 }

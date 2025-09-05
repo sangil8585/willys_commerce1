@@ -60,7 +60,7 @@ class OrderEventHandlerPartitionTest {
         // then
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<com.loopers.event.order.OrderEvent> eventCaptor = ArgumentCaptor.forClass(com.loopers.event.order.OrderEvent.class);
+        ArgumentCaptor<com.loopers.event.order.OrderKafkaEvent> eventCaptor = ArgumentCaptor.forClass(com.loopers.event.order.OrderKafkaEvent.class);
 
         verify(kafkaEventPublisher).publishEventAsync(
             topicCaptor.capture(), 
@@ -91,7 +91,7 @@ class OrderEventHandlerPartitionTest {
         // then
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<com.loopers.event.order.OrderEvent> eventCaptor = ArgumentCaptor.forClass(com.loopers.event.order.OrderEvent.class);
+        ArgumentCaptor<com.loopers.event.order.OrderKafkaEvent> eventCaptor = ArgumentCaptor.forClass(com.loopers.event.order.OrderKafkaEvent.class);
 
         verify(kafkaEventPublisher).publishEventAsync(
             topicCaptor.capture(), 

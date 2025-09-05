@@ -1,7 +1,7 @@
 package com.loopers.application.metrics;
 
 import com.loopers.domain.metrics.ProductMetricsService;
-import com.loopers.event.order.OrderEvent;
+import com.loopers.event.order.OrderKafkaEvent;
 import com.loopers.event.like.LikeKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class MetricsFacade {
     @Transactional
     public MetricsResult processOrderMetrics(MetricsCriteria criteria) {
         try {
-            OrderEvent event = (OrderEvent) criteria.getEvent();
+            OrderKafkaEvent event = (OrderKafkaEvent) criteria.getEvent();
             
             log.info("주문 메트릭 처리 시작 - eventId: {}, eventType: {}, orderId: {}, topic: {}, partition: {}, offset: {}",
                     event.getEventId(), event.getEventType(), event.getOrderId(), 
@@ -95,11 +95,11 @@ public class MetricsFacade {
         }
     }
 
-    private int handleOrderCompleted(OrderEvent event, LocalDate date) {
+    private int handleOrderCompleted(OrderKafkaEvent event, LocalDate date) {
         int processedCount = 0;
         
         // 각 상품별로 주문 수량 집계
-        for (OrderEvent.OrderItem item : event.getItems()) {
+        for (OrderKafkaEvent.OrderItem item : event.getItems()) {
             productMetricsService.upsertProductMetrics(
                 item.getProductId(), date, "order", 1);
 
@@ -112,7 +112,7 @@ public class MetricsFacade {
         return processedCount;
     }
 
-    private int handlePaymentCompleted(OrderEvent event, LocalDate date) {
+    private int handlePaymentCompleted(OrderKafkaEvent event, LocalDate date) {
         return 0;
     }
 

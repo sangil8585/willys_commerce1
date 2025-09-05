@@ -3,7 +3,7 @@ package com.loopers.interfaces.metrics;
 import com.loopers.application.metrics.MetricsCriteria;
 import com.loopers.application.metrics.MetricsFacade;
 import com.loopers.application.metrics.MetricsResult;
-import com.loopers.event.order.OrderEvent;
+import com.loopers.event.order.OrderKafkaEvent;
 import com.loopers.event.like.LikeKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class MetricsConsumer {
         containerFactory = "BATCH_LISTENER_DEFAULT"
     )
     public void handleOrderEvents(
-            @Payload OrderEvent event,
+            @Payload OrderKafkaEvent event,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset,
