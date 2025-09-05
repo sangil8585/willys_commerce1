@@ -19,6 +19,7 @@ spring:
     active: local
   config:
     import:
+      - jpa.yml
       - kafka.yml
       - logging.yml
       - monitoring.yml
