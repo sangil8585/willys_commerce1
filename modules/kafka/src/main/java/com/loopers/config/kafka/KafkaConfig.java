@@ -74,7 +74,8 @@ public class KafkaConfig {
         factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(consumerConfig));
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setBatchMessageConverter(new BatchMessagingMessageConverter(converter));
-        factory.setConcurrency(3);
+        // 파티션별 순서보장을 위해 동시성을 1로 설정 (또는 파티션 수만큼 변경가능)
+        factory.setConcurrency(1);
         factory.setBatchListener(true);
         return factory;
     }

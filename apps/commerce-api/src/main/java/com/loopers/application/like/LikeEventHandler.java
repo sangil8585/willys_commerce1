@@ -27,7 +27,7 @@ public class LikeEventHandler {
     public void handleLikeCreated(LikeEvent.Created event) {
         try {
             LikeCommand.Create command = new LikeCommand.Create(event.userId(), event.productId());
-            LikeEntity likeEntity = likeService.createLike(command);
+            likeService.createLike(command);
             
             // 상품의 좋아요 카운트 증가
             productService.findById(event.productId()).ifPresent(product -> {
@@ -48,7 +48,7 @@ public class LikeEventHandler {
         try {
             // Kafka로 좋아요 생성 이벤트 발행
             LikeKafkaEvent kafkaEvent = LikeKafkaEvent.likeCreated(event.userId(), event.productId());
-            kafkaEventPublisher.publishEventAsync("like-events", kafkaEvent);
+            kafkaEventPublisher.publishEventAsync("like-events", event.productId().toString(), kafkaEvent);
             
             log.info("좋아요 생성 이벤트 발행 완료 - userId: {}, productId: {}", 
                     event.userId(), event.productId());
@@ -86,9 +86,9 @@ public class LikeEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleLikeRemovedAfterCommit(LikeEvent.Removed event) {
         try {
-            // Kafka로 좋아요 삭제 이벤트 발행
+            // Kafka로 좋아요 삭제 이벤트 발행 (productId를 파티션키로 사용하여 순서보장)
             LikeKafkaEvent kafkaEvent = LikeKafkaEvent.likeRemoved(event.userId(), event.productId());
-            kafkaEventPublisher.publishEventAsync("like-events", kafkaEvent);
+            kafkaEventPublisher.publishEventAsync("like-events", event.productId().toString(), kafkaEvent);
             
             log.info("좋아요 삭제 이벤트 발행 완료 - userId: {}, productId: {}", 
                     event.userId(), event.productId());

@@ -5,7 +5,6 @@ import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.order.OrderEntity;
-import com.loopers.support.error.CoreException;
 import com.loopers.config.kafka.KafkaEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,8 @@ public class OrderEventHandler {
                     .collect(Collectors.toList())
             );
             
-            kafkaEventPublisher.publishEventAsync("order-events", kafkaEvent);
+            // orderId를 파티션키로 사용하여 순서보장
+            kafkaEventPublisher.publishEventAsync("order-events", event.orderId().toString(), kafkaEvent);
             
             log.info("주문 생성 완료 이벤트 처리 완료 - orderId: {}", event.orderId());
             
@@ -147,7 +147,8 @@ public class OrderEventHandler {
                     .collect(Collectors.toList())
             );
             
-            kafkaEventPublisher.publishEventAsync("order-events", kafkaEvent);
+            // orderId를 파티션키로 사용하여 순서보장
+            kafkaEventPublisher.publishEventAsync("order-events", event.orderId().toString(), kafkaEvent);
             
             log.info("결제 완료 후 재고 차감 완료 - orderId: {}, items: {}", event.orderId(), stockDeductionMap);
             
