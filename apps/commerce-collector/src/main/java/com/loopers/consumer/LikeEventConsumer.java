@@ -1,6 +1,6 @@
 package com.loopers.consumer;
 
-import com.loopers.event.like.LikeEvent;
+import com.loopers.event.like.LikeKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,7 +21,7 @@ public class LikeEventConsumer {
         containerFactory = "BATCH_LISTENER_DEFAULT"
     )
     public void handleLikeEvents(
-            @Payload LikeEvent event,
+            @Payload LikeKafkaEvent event,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset,
@@ -49,7 +49,7 @@ public class LikeEventConsumer {
         }
     }
     
-    private void handleLikeCreated(LikeEvent event) {
+    private void handleLikeCreated(LikeKafkaEvent event) {
         log.info("좋아요 생성 이벤트 처리 - userId: {}, productId: {}", 
                 event.getUserId(), event.getProductId());
         
@@ -60,7 +60,7 @@ public class LikeEventConsumer {
         // - 실시간 통계 업데이트 등
     }
     
-    private void handleLikeRemoved(LikeEvent event) {
+    private void handleLikeRemoved(LikeKafkaEvent event) {
         log.info("좋아요 삭제 이벤트 처리 - userId: {}, productId: {}", 
                 event.getUserId(), event.getProductId());
         

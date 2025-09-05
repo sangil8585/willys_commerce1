@@ -16,17 +16,20 @@ public class KafkaEventPublisher {
     
     private final KafkaTemplate<String, Object> kafkaTemplate;
     
-    public void publishEvent(String topic, String key, BaseEvent event) {
+
+    public void publishEventAsync(String topic, String key, BaseEvent event) {
         try {
             CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, key, event);
             
             future.whenComplete((result, ex) -> {
                 if (ex == null) {
-                    log.info("이벤트 발행 성공 - topic: {}, key: {}, eventId: {}, eventType: {}", 
-                            topic, key, event.getEventId(), event.getEventType());
+                    log.info("이벤트 발행 성공 - topic: {}, key: {}, eventId: {}, eventType: {}, partition: {}, offset: {}", 
+                            topic, key, event.getEventId(), event.getEventType(),
+                            result.getRecordMetadata().partition(), result.getRecordMetadata().offset());
                 } else {
                     log.error("이벤트 발행 실패 - topic: {}, key: {}, eventId: {}, error: {}", 
                             topic, key, event.getEventId(), ex.getMessage());
+                    // 비동기에서는 재시도하지 않음 (Kafka Producer 설정에서 자동 재시도)
                 }
             });
             
@@ -36,7 +39,7 @@ public class KafkaEventPublisher {
         }
     }
     
-    public void publishEvent(String topic, BaseEvent event) {
-        publishEvent(topic, event.getEventId(), event);
+    public void publishEventAsync(String topic, BaseEvent event) {
+        publishEventAsync(topic, event.getEventId(), event);
     }
 }

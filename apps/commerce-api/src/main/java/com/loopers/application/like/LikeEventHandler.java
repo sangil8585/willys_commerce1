@@ -7,6 +7,7 @@ import com.loopers.domain.like.LikeEntity;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.error.CoreException;
 import com.loopers.config.kafka.KafkaEventPublisher;
+import com.loopers.event.like.LikeKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.event.TransactionPhase;
@@ -46,8 +47,8 @@ public class LikeEventHandler {
     public void handleLikeCreatedAfterCommit(LikeEvent.Created event) {
         try {
             // Kafka로 좋아요 생성 이벤트 발행
-            com.loopers.event.like.LikeEvent kafkaEvent = com.loopers.event.like.LikeEvent.likeCreated(event.userId(), event.productId());
-            kafkaEventPublisher.publishEvent("like-events", kafkaEvent);
+            LikeKafkaEvent kafkaEvent = LikeKafkaEvent.likeCreated(event.userId(), event.productId());
+            kafkaEventPublisher.publishEventAsync("like-events", kafkaEvent);
             
             log.info("좋아요 생성 이벤트 발행 완료 - userId: {}, productId: {}", 
                     event.userId(), event.productId());
@@ -86,8 +87,8 @@ public class LikeEventHandler {
     public void handleLikeRemovedAfterCommit(LikeEvent.Removed event) {
         try {
             // Kafka로 좋아요 삭제 이벤트 발행
-            com.loopers.event.like.LikeEvent kafkaEvent = com.loopers.event.like.LikeEvent.likeRemoved(event.userId(), event.productId());
-            kafkaEventPublisher.publishEvent("like-events", kafkaEvent);
+            LikeKafkaEvent kafkaEvent = LikeKafkaEvent.likeRemoved(event.userId(), event.productId());
+            kafkaEventPublisher.publishEventAsync("like-events", kafkaEvent);
             
             log.info("좋아요 삭제 이벤트 발행 완료 - userId: {}, productId: {}", 
                     event.userId(), event.productId());

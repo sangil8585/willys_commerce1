@@ -54,7 +54,7 @@ public class OrderEventHandler {
                     .collect(Collectors.toList())
             );
             
-            kafkaEventPublisher.publishEvent("order-events", kafkaEvent);
+            kafkaEventPublisher.publishEventAsync("order-events", kafkaEvent);
             
             log.info("주문 생성 완료 이벤트 처리 완료 - orderId: {}", event.orderId());
             
@@ -147,7 +147,7 @@ public class OrderEventHandler {
                     .collect(Collectors.toList())
             );
             
-            kafkaEventPublisher.publishEvent("order-events", kafkaEvent);
+            kafkaEventPublisher.publishEventAsync("order-events", kafkaEvent);
             
             log.info("결제 완료 후 재고 차감 완료 - orderId: {}, items: {}", event.orderId(), stockDeductionMap);
             
