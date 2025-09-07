@@ -3,6 +3,8 @@ package com.loopers.domain.product;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -52,6 +54,10 @@ public class ProductService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "product", allEntries = true),
+        @CacheEvict(value = "productList", allEntries = true)
+    })
     public void deductStock(Map<Long, Integer> itemQuantityMap) {
         // 비관적 락으로 상품 조회
         List<Long> ids = itemQuantityMap.keySet().stream().toList();

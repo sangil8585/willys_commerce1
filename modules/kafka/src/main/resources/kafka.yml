@@ -1,0 +1,50 @@
+spring:
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    client-id: ${spring.application.name}
+    properties:
+      spring.json.add.type.headers: false # json serialize off
+      request.timeout.ms: 20000
+      retry.backoff.ms: 500
+      auto:
+        create.topics.enable: false
+        register.schemas: false
+        offset.reset: latest
+      use.latest.version: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      acks: all                 # 모든 replica가 확인할 때까지 대기하도록 설정
+      enable-idempotence: true  # 멱등성을 위한 설정
+      max-in-flight-requests-per-connection: 5
+      properties:
+        retry.backoff.ms: 1000  
+        delivery.timeout.ms: 120000
+        partitioner.class: com.loopers.config.kafka.CustomPartitioner  # 커스텀 파티셔너 사용
+    consumer:
+      enable-auto-commit: false # 순서보장을 위한 수동커밋 설정
+      group-id: loopers-default-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    listener:
+      ack-mode: manual
+
+---
+spring.config.activate.on-profile: local, test
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:19092
+    admin:
+      properties:
+        bootstrap.servers: kafka:9092
+
+---
+spring.config.activate.on-profile: dev
+
+---
+spring.config.activate.on-profile: qa
+
+---
+spring.config.activate.on-profile: prd

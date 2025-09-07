@@ -5,7 +5,8 @@ import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.order.OrderEntity;
-import com.loopers.support.error.CoreException;
+import com.loopers.config.kafka.KafkaEventPublisher;
+import com.loopers.event.order.OrderKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.event.TransactionPhase;
@@ -13,6 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,7 @@ public class OrderEventHandler {
     private final CouponService couponService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final KafkaEventPublisher kafkaEventPublisher;
     
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
@@ -32,8 +35,27 @@ public class OrderEventHandler {
                 event.orderId(), event.userId(), event.totalAmount(), event.discountAmount());
         
         try {
-            // - 주문 통계 업데이트
-            // - 재고 모니터링 정도 할수있을듯..
+            // 주문 엔티티에서 아이템 정보 조회
+            OrderEntity order = orderService.findById(event.orderId())
+                    .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + event.orderId()));
+            
+            // Kafka로 주문 완료 이벤트 발행
+            OrderKafkaEvent kafkaEvent = OrderKafkaEvent.orderCompleted(
+                event.orderId(),
+                event.userId(),
+                BigDecimal.valueOf(event.totalAmount()),
+                BigDecimal.valueOf(event.discountAmount()),
+                order.getItems().stream()
+                    .map(item -> new OrderKafkaEvent.OrderItem(
+                        item.getProductId(),
+                        item.getQuantity().intValue(),
+                        BigDecimal.valueOf(item.getPrice())
+                    ))
+                    .collect(Collectors.toList())
+            );
+            
+            // orderId를 파티션키로 사용하여 순서보장
+            kafkaEventPublisher.publishEventAsync("order-events", event.orderId().toString(), kafkaEvent);
             
             log.info("주문 생성 완료 이벤트 처리 완료 - orderId: {}", event.orderId());
             
@@ -44,7 +66,6 @@ public class OrderEventHandler {
         }
     }
     
-    // BEFORE_COMMIT으로 변경
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleCouponUsageRequested(OrderEvent.CouponUsageRequested event) {
         log.info("쿠폰 사용 요청 이벤트 처리 시작 - orderId: {}, couponId: {}, 주문금액: {}", 
@@ -62,7 +83,6 @@ public class OrderEventHandler {
         } catch (Exception e) {
             log.error("쿠폰 사용 이벤트 처리 중 오류 발생 - orderId: {}, couponId: {}, error: {}", 
                     event.orderId(), event.couponId(), e.getMessage());
-            // 🚨 BEFORE_COMMIT이므로 예외를 다시 던져서 주문 트랜잭션을 롤백시킴
             throw new RuntimeException("쿠폰 사용 처리 실패: " + e.getMessage(), e);
         }
     }
@@ -101,7 +121,6 @@ public class OrderEventHandler {
                 event.orderId(), event.paymentId(), event.finalAmount());
         
         try {
-            // 실제 재고 차감 (결제 완료 후)
             OrderEntity order = orderService.findById(event.orderId())
                     .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다: " + event.orderId()));
             
@@ -111,6 +130,23 @@ public class OrderEventHandler {
                             item -> item.getQuantity().intValue()
                     ));
             productService.deductStock(stockDeductionMap);
+            
+            // Kafka로 결제 완료 이벤트 발행
+            OrderKafkaEvent kafkaEvent = OrderKafkaEvent.paymentCompleted(
+                event.orderId(),
+                order.getUserId(),
+                BigDecimal.valueOf(event.finalAmount()),
+                order.getItems().stream()
+                    .map(item -> new OrderKafkaEvent.OrderItem(
+                        item.getProductId(),
+                        item.getQuantity().intValue(),
+                        BigDecimal.valueOf(item.getPrice())
+                    ))
+                    .collect(Collectors.toList())
+            );
+            
+            // orderId를 파티션키로 사용하여 순서보장
+            kafkaEventPublisher.publishEventAsync("order-events", event.orderId().toString(), kafkaEvent);
             
             log.info("결제 완료 후 재고 차감 완료 - orderId: {}, items: {}", event.orderId(), stockDeductionMap);
             
