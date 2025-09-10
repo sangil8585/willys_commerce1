@@ -5,6 +5,7 @@ import com.loopers.application.metrics.MetricsFacade;
 import com.loopers.application.metrics.MetricsResult;
 import com.loopers.event.order.OrderKafkaEvent;
 import com.loopers.event.like.LikeKafkaEvent;
+import com.loopers.event.product.ProductViewKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -93,6 +94,45 @@ public class MetricsConsumer {
 
         } catch (Exception e) {
             log.error("좋아요 메트릭 처리 중 오류 발생 - eventId: {}, error: {}",
+                    event.getEventId(), e.getMessage(), e);
+
+            acknowledgment.acknowledge();
+        }
+    }
+
+    @KafkaListener(
+        topics = "product-view-events",
+        groupId = "metrics-group",
+        containerFactory = "BATCH_LISTENER_DEFAULT"
+    )
+    public void handleProductViewEvents(
+            @Payload ProductViewKafkaEvent event,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment acknowledgment
+    ) {
+        try {
+            log.info("상품 조회 메트릭 수신 - eventId: {}, eventType: {}, productId: {}, topic: {}, partition: {}, offset: {}",
+                    event.getEventId(), event.getEventType(), event.getProductId(), topic, partition, offset);
+
+            MetricsCriteria criteria = MetricsCriteria.of(event, topic, partition, offset);
+
+            
+            MetricsResult result = metricsFacade.processProductViewMetrics(criteria);
+
+            if (result.isSuccess()) {
+                log.info("상품 조회 메트릭 처리 성공 - eventId: {}, eventType: {}, processedCount: {}, message: {}",
+                        result.getEventId(), result.getEventType(), result.getProcessedCount(), result.getMessage());
+            } else {
+                log.error("상품 조회 메트릭 처리 실패 - eventId: {}, eventType: {}, error: {}",
+                        result.getEventId(), result.getEventType(), result.getErrorMessage());
+            }
+
+            acknowledgment.acknowledge(); 
+
+        } catch (Exception e) {
+            log.error("상품 조회 메트릭 처리 중 오류 발생 - eventId: {}, error: {}",
                     event.getEventId(), e.getMessage(), e);
 
             acknowledgment.acknowledge();
