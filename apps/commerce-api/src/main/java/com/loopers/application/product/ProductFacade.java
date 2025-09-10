@@ -4,12 +4,14 @@ import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductCriteria;
 import com.loopers.domain.product.ProductEntity;
+import com.loopers.domain.product.ProductEvent;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,7 @@ public class ProductFacade {
 
     private final ProductService productService;
     private final BrandService brandService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ProductInfo createProduct(ProductCommand.Create command) {
@@ -81,6 +84,10 @@ public class ProductFacade {
     public ProductInfo findProductById(Long productId) {
         ProductEntity productEntity = productService.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
+        
+        // 조회수 증가 이벤트 발행
+        ProductEvent.Viewed productViewedEvent = ProductEvent.Viewed.of(productId);
+        eventPublisher.publishEvent(productViewedEvent);
         
         String brandName = brandService.find(productEntity.getBrandId())
                 .map(brand -> brand.getName())
