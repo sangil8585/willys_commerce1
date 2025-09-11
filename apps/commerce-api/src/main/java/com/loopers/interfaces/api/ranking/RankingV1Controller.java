@@ -9,29 +9,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/ranking")
-public class RankingV1Controller {
+public class RankingV1Controller implements RankingV1Spec{
 
     private final RankingFacade rankingFacade;
 
-    @GetMapping("")
+    @GetMapping
+    @Override
     public ApiResponse<List<RankingV1Dto.RankingResponse>> getRanking(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false) LocalDate date
+            @RequestBody RankingV1Dto.RankingRequest request
     ) {
-        
-        RankingCriteria.Search criteria = new RankingCriteria.Search(page, size, date);
-        Pageable pageable = PageRequest.of(page, size);
+        RankingCriteria.Search criteria = new RankingCriteria.Search(
+            request.page(), 
+            request.size(), 
+            request.date()
+        );
+        Pageable pageable = PageRequest.of(request.page(), request.size());
         
         Page<RankingResult> rankingResults = rankingFacade.findRankings(criteria, pageable);
         List<RankingV1Dto.RankingResponse> responses = rankingResults.getContent()

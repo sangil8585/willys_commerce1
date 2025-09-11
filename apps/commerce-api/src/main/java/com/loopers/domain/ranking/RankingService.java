@@ -3,6 +3,7 @@ package com.loopers.domain.ranking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ public class RankingService {
     private final RankingRepository rankingRepository;
 
     public Page<RankingInfo> getRankings(RankingCommand.Rankings command) {
-        // 도메인 규칙: 페이지와 사이즈 검증
         int page = Math.max(command.page(), 0);
         int size = Math.min(Math.max(command.size(), 5), 20);
         int offset = page * size;
@@ -26,7 +26,7 @@ public class RankingService {
 
         Long totalCount = rankingRepository.getTotalCount(command.date());
         
-        return new PageImpl<>(rankingInfos, org.springframework.data.domain.PageRequest.of(page, size), totalCount);
+        return new PageImpl<>(rankingInfos, PageRequest.of(page, size), totalCount);
     }
 
     private List<RankingInfo> createRankingInfos(List<Long> productIds, int offset) {

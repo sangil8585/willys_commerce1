@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+
 @Component
 @RequiredArgsConstructor
 public class RankingFacade {
@@ -31,15 +34,14 @@ public class RankingFacade {
         List<RankingResult> rankingResults = rankingInfos.getContent().stream()
                 .map(rankingInfo -> {
                     ProductEntity productEntity = productService.findById(rankingInfo.productId())
-                            .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + rankingInfo.productId()));
+                            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "Can't find product: " + rankingInfo.productId()));
                     return new RankingResult(
                             productEntity.getId(),
                             productEntity.getName(),
                             productEntity.getPrice(),
                             rankingInfo.rank()
                     );
-                })
-                .toList();
+                }).toList();
         
         return new PageImpl<>(rankingResults, pageable, rankingInfos.getTotalElements());
     }
