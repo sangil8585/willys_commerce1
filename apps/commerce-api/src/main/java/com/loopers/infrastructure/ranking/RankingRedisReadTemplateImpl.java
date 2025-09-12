@@ -11,7 +11,7 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RankingRedisTemplateImpl implements RankingRedisTemplate {
+public class RankingRedisReadTemplateImpl implements RankingRedisReadTemplate {
 
     private final RedisTemplate<String, String> redisTemplate;
 

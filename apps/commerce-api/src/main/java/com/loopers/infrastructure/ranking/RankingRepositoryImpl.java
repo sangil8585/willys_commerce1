@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RankingRepositoryImpl implements RankingRepository {
 
-    private final RankingRedisTemplate rankingRedisTemplate;
+    private final RankingRedisReadTemplate rankingRedisReadTemplate;
 
     @Override
     public List<Long> getRankedProducts(int offset, int size, LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
-        Set<String> productIds = rankingRedisTemplate.getReverseRange(rankingKey, offset, offset + size - 1);
+        String rankingKey = rankingRedisReadTemplate.generateDailyRankingKey(date);
+        Set<String> productIds = rankingRedisReadTemplate.getReverseRange(rankingKey, offset, offset + size - 1);
 
         return productIds.stream()
                 .map(Long::parseLong)
@@ -29,18 +29,18 @@ public class RankingRepositoryImpl implements RankingRepository {
 
     @Override
     public Long getTotalCount(LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
-        Long count = rankingRedisTemplate.getSize(rankingKey);
+        String rankingKey = rankingRedisReadTemplate.generateDailyRankingKey(date);
+        Long count = rankingRedisReadTemplate.getSize(rankingKey);
 
         return count != null ? count : 0L;
     }
 
     @Override
     public Long getProductRank(Long productId, LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
+        String rankingKey = rankingRedisReadTemplate.generateDailyRankingKey(date);
         String member = productId.toString();
 
-        Long rank = rankingRedisTemplate.getReverseRank(rankingKey, member);
+        Long rank = rankingRedisReadTemplate.getReverseRank(rankingKey, member);
 
         return rank + 1;
     }

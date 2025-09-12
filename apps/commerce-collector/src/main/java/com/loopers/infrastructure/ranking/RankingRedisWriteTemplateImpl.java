@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RankingRedisTemplateImpl implements RankingRedisTemplate {
+public class RankingRedisWriteTemplateImpl implements RankingRedisWriteTemplate {
 
     private final RedisTemplate<String, String> redisTemplate;
 

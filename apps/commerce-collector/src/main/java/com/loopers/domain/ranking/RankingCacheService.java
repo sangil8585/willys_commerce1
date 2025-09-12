@@ -1,6 +1,6 @@
 package com.loopers.domain.ranking;
 
-import com.loopers.infrastructure.ranking.RankingRedisTemplate;
+import com.loopers.infrastructure.ranking.RankingRedisWriteTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,25 +15,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RankingCacheService {
 
-    private final RankingRedisTemplate rankingRedisTemplate;
+    private final RankingRedisWriteTemplate rankingRedisWriteTemplate;
 
     private static final long DEFAULT_TTL_SECONDS = 2 * 24 * 60 * 60L;
 
     public void updateScore(Long productId, double score, LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
+        String rankingKey = rankingRedisWriteTemplate.generateDailyRankingKey(date);
         String member = productId.toString();
 
-        rankingRedisTemplate.incrementScore(rankingKey, member, score);
+        rankingRedisWriteTemplate.incrementScore(rankingKey, member, score);
 
-        if (rankingRedisTemplate.getSize(rankingKey) == 1) {
-            rankingRedisTemplate.setTTL(rankingKey, DEFAULT_TTL_SECONDS);
+        if (rankingRedisWriteTemplate.getSize(rankingKey) == 1) {
+            rankingRedisWriteTemplate.setTTL(rankingKey, DEFAULT_TTL_SECONDS);
         }
     }
 
     public List<Long> getRankedProducts(int offset, int size, LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
+        String rankingKey = rankingRedisWriteTemplate.generateDailyRankingKey(date);
 
-        Set<String> productIds = rankingRedisTemplate.getReverseRange(rankingKey, offset, offset + size - 1);
+        Set<String> productIds = rankingRedisWriteTemplate.getReverseRange(rankingKey, offset, offset + size - 1);
 
         if (productIds == null || productIds.isEmpty()) {
             return List.of();
@@ -45,16 +45,16 @@ public class RankingCacheService {
     }
 
     public Long getTotalCount(LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
-        Long count = rankingRedisTemplate.getSize(rankingKey);
+        String rankingKey = rankingRedisWriteTemplate.generateDailyRankingKey(date);
+        Long count = rankingRedisWriteTemplate.getSize(rankingKey);
         return count != null ? count : 0L;
     }
 
     public Long getProductRank(Long productId, LocalDate date) {
-        String rankingKey = rankingRedisTemplate.generateDailyRankingKey(date);
+        String rankingKey = rankingRedisWriteTemplate.generateDailyRankingKey(date);
         String member = productId.toString();
 
-        Long rank = rankingRedisTemplate.getReverseRank(rankingKey, member);
+        Long rank = rankingRedisWriteTemplate.getReverseRank(rankingKey, member);
 
         if (rank == null) {
             return null;
