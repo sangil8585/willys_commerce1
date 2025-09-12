@@ -14,7 +14,8 @@ public class ProductV1Dto {
                 String brandName,
                 Long price,
                 Long stock,
-                Long likes
+                Long likes,
+                Long rank
         ) {
             public static ProductResponse from(ProductInfo info) {
                 return new ProductResponse(
@@ -24,7 +25,8 @@ public class ProductV1Dto {
                         info.brandName(),
                         info.price(),
                         info.stock(),
-                        info.likes()
+                        info.likes(),
+                        info.rank()
                 );
             }
         }

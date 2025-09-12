@@ -29,6 +29,10 @@ public class RankingService {
         return new PageImpl<>(rankingInfos, PageRequest.of(page, size), totalCount);
     }
 
+    public Long getProductRank(Long productId, RankingCommand.ProductRank command) {
+        return rankingRepository.getProductRank(productId, command.date());
+    }
+
     private List<RankingInfo> createRankingInfos(List<Long> productIds, int offset) {
         List<RankingInfo> rankingInfos = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {

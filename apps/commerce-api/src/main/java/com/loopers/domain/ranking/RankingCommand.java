@@ -10,4 +10,10 @@ public class RankingCommand {
     ) {
 
     }
+
+    public record ProductRank(
+            LocalDate date
+    ) {
+
+    }
 }
