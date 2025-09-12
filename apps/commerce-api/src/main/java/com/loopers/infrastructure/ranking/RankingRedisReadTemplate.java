@@ -10,6 +10,6 @@ public interface RankingRedisReadTemplate {
     Long getSize(String key);
     Long getReverseRank(String key, String member);
     default String generateDailyRankingKey(LocalDate date) {
-        return "ranking:daily:all:" + date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return "ranking:all:" + date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 }
