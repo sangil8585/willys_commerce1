@@ -8,16 +8,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/ranking")
+@RequestMapping("/api/v1/rankings")
 public class RankingV1Controller implements RankingV1Spec{
 
     private final RankingFacade rankingFacade;
@@ -25,21 +27,20 @@ public class RankingV1Controller implements RankingV1Spec{
     @GetMapping
     @Override
     public ApiResponse<List<RankingV1Dto.RankingResponse>> getRanking(
-            @RequestBody RankingV1Dto.RankingRequest request
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date
     ) {
-        RankingCriteria.Search criteria = new RankingCriteria.Search(
-            request.page(), 
-            request.size(), 
-            request.date()
-        );
-        Pageable pageable = PageRequest.of(request.page(), request.size());
-        
+        int zeroBasedPage = Math.max(page - 1, 0);
+        RankingCriteria.Search criteria = new RankingCriteria.Search(zeroBasedPage, size, date);
+        Pageable pageable = PageRequest.of(zeroBasedPage, size);
+
         Page<RankingResult> rankingResults = rankingFacade.findRankings(criteria, pageable);
         List<RankingV1Dto.RankingResponse> responses = rankingResults.getContent()
                 .stream()
                 .map(RankingV1Dto.RankingResponse::from)
                 .toList();
-        
+
         return ApiResponse.success(responses);
     }
 }

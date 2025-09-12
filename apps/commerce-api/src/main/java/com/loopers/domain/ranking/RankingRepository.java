@@ -8,4 +8,6 @@ public interface RankingRepository {
     List<Long> getRankedProducts(int offset, int size, LocalDate date);
 
     Long getTotalCount(LocalDate date);
+
+    Long getProductRank(Long productId, LocalDate date);
 }

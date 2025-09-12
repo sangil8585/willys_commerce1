@@ -1,7 +1,5 @@
 package com.loopers.interfaces.api.ranking;
 
-import java.time.LocalDate;
-
 import com.loopers.application.ranking.RankingResult;
 
 public class RankingV1Dto {
@@ -19,13 +17,5 @@ public class RankingV1Dto {
                     result.rank()
             );
         }
-    }
-
-    public record RankingRequest(
-            int page,
-            int size,
-            LocalDate date
-    ) {
-
     }
 }
