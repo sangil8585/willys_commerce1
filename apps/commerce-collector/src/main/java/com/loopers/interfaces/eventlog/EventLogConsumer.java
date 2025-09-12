@@ -3,6 +3,7 @@ package com.loopers.interfaces.eventlog;
 import com.loopers.application.eventlog.EventLogCriteria;
 import com.loopers.application.eventlog.EventLogFacade;
 import com.loopers.application.eventlog.EventLogResult;
+import com.loopers.config.kafka.KafkaConfig;
 import com.loopers.event.BaseEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class EventLogConsumer {
     @KafkaListener(
         topics = {"order-events", "like-events", "payment-events"},
         groupId = "audit-log-group",
-        containerFactory = "BATCH_LISTENER_DEFAULT"
+        containerFactory = KafkaConfig.BATCH_LISTENER
     )
     public void handleAllEvents(
             @Payload BaseEvent event,

@@ -3,6 +3,7 @@ package com.loopers.interfaces.metrics;
 import com.loopers.application.metrics.MetricsCriteria;
 import com.loopers.application.metrics.MetricsFacade;
 import com.loopers.application.metrics.MetricsResult;
+import com.loopers.config.kafka.KafkaConfig;
 import com.loopers.event.order.OrderKafkaEvent;
 import com.loopers.event.like.LikeKafkaEvent;
 import com.loopers.event.product.ProductViewKafkaEvent;
@@ -25,7 +26,7 @@ public class MetricsConsumer {
     @KafkaListener(
         topics = "order-events",
         groupId = "metrics-group",
-        containerFactory = "BATCH_LISTENER_DEFAULT"
+        containerFactory = KafkaConfig.BATCH_LISTENER
     )
     public void handleOrderEvents(
             @Payload OrderKafkaEvent event,
@@ -64,7 +65,7 @@ public class MetricsConsumer {
     @KafkaListener(
         topics = "like-events",
         groupId = "metrics-group",
-        containerFactory = "BATCH_LISTENER_DEFAULT"
+        containerFactory = KafkaConfig.BATCH_LISTENER
     )
     public void handleLikeEvents(
             @Payload LikeKafkaEvent event,
@@ -103,7 +104,7 @@ public class MetricsConsumer {
     @KafkaListener(
         topics = "product-view-events",
         groupId = "metrics-group",
-        containerFactory = "BATCH_LISTENER_DEFAULT"
+        containerFactory = KafkaConfig.BATCH_LISTENER
     )
     public void handleProductViewEvents(
             @Payload ProductViewKafkaEvent event,
