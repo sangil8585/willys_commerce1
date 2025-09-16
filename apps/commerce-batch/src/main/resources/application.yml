@@ -1,0 +1,119 @@
+server:
+  port: 8083  # 배치 모니터링용 포트
+  shutdown: graceful
+
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: commerce-batch
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+      - redis.yml
+      - logging.yml
+      - monitoring.yml
+
+  # Spring Batch Configuration
+  batch:
+    jdbc:
+      initialize-schema: always  # 배치 메타데이터 테이블 자동 생성
+    job:
+      enabled: false  # 수동 실행을 위해 기본 잡 비활성화
+
+  # Quartz Scheduler Configuration (주기적 배치 실행용)
+  quartz:
+    job-store-type: jdbc  # 데이터베이스에 스케줄 정보 저장
+    jdbc:
+      initialize-schema: always
+    properties:
+      org.quartz.threadPool.threadCount: 5
+      org.quartz.jobStore.isClustered: false
+      org.quartz.jobStore.clusterCheckinInterval: 20000
+
+# Batch Job Configuration
+batch:
+  ranking:
+    weekly:
+      cron: "0 0 2 ? * MON"
+      enabled: true
+    monthly:
+      cron: "0 0 2 1 * ?"
+      enabled: true
+
+# Management (모니터링용)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,batch
+  endpoint:
+    batch:
+      enabled: true
+  metrics:
+    export:
+      defaults:
+        enabled: true
+
+---
+# Local Profile
+spring:
+  config:
+    activate:
+      on-profile: local
+  batch:
+    job:
+      enabled: false  # 로컬에서는 수동 실행
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  batch:
+    job:
+      enabled: true  # 개발환경에서는 자동 실행
+
+---
+# QA Profile
+spring:
+  config:
+    activate:
+      on-profile: qa
+  batch:
+    job:
+      enabled: true
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prd
+  batch:
+    job:
+      enabled: true
+  quartz:
+    properties:
+      org.quartz.jobStore.isClustered: true  # 프로덕션에서는 클러스터링 활성화
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
