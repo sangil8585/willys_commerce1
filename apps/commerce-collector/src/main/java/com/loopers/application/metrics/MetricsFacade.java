@@ -3,6 +3,7 @@ package com.loopers.application.metrics;
 import com.loopers.domain.metrics.ProductMetricsService;
 import com.loopers.event.order.OrderKafkaEvent;
 import com.loopers.event.like.LikeKafkaEvent;
+import com.loopers.event.product.ProductViewKafkaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -126,6 +127,51 @@ public class MetricsFacade {
     private int handleLikeRemoved(LikeKafkaEvent event, LocalDate date) {
         productMetricsService.upsertProductMetrics(
             event.getProductId(), date, "like", -1);
+        
+        return 1;
+    }
+
+    @Transactional
+    public MetricsResult processProductViewMetrics(MetricsCriteria criteria) {
+        try {
+            ProductViewKafkaEvent event = (ProductViewKafkaEvent) criteria.getEvent();
+            
+            log.info("상품 조회 메트릭 처리 시작 - eventId: {}, eventType: {}, productId: {}, topic: {}, partition: {}, offset: {}",
+                    event.getEventId(), event.getEventType(), event.getProductId(),
+                    criteria.getTopic(), criteria.getPartition(), criteria.getOffset());
+
+            int processedCount = 0;
+
+            switch (event.getEventType()) {
+                case "ProductViewed" -> processedCount = handleProductViewed(event, criteria.getDate());
+                default -> log.warn("알 수 없는 상품 조회 이벤트 타입: {}", event.getEventType());
+            }
+
+            log.info("상품 조회 메트릭 처리 완료 - eventId: {}, eventType: {}, processedCount: {}",
+                    event.getEventId(), event.getEventType(), processedCount);
+
+            return MetricsResult.success(
+                    event.getEventId(),
+                    event.getEventType(),
+                    "상품 조회 메트릭 처리 완료",
+                    processedCount
+            );
+
+        } catch (Exception e) {
+            log.error("상품 조회 메트릭 처리 실패 - eventId: {}, eventType: {}, error: {}",
+                    criteria.getEvent().getEventId(), criteria.getEvent().getEventType(), e.getMessage(), e);
+
+            return MetricsResult.failure(
+                    criteria.getEvent().getEventId(),
+                    criteria.getEvent().getEventType(),
+                    e.getMessage()
+            );
+        }
+    }
+
+    private int handleProductViewed(ProductViewKafkaEvent event, LocalDate date) {
+        productMetricsService.upsertProductMetrics(
+            event.getProductId(), date, "view", 1);
         
         return 1;
     }

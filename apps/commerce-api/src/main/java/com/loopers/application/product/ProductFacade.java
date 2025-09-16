@@ -4,16 +4,22 @@ import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductCriteria;
 import com.loopers.domain.product.ProductEntity;
+import com.loopers.domain.product.ProductEvent;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.ranking.RankingCommand;
+import com.loopers.domain.ranking.RankingService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +27,8 @@ public class ProductFacade {
 
     private final ProductService productService;
     private final BrandService brandService;
+    private final RankingService rankingService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ProductInfo createProduct(ProductCommand.Create command) {
@@ -46,8 +54,8 @@ public class ProductFacade {
         
         // 상품 생성 후 관련 캐시 무효화
         evictProductListCache();
-        
-        return ProductInfo.from(productEntity, brandName);
+
+        return ProductInfo.from(productEntity, brandName, null);
     }
 
     @Transactional(readOnly = true)
@@ -68,25 +76,29 @@ public class ProductFacade {
         });
     }
 
-
-
-
-    
     @Transactional(readOnly = true)
     @Cacheable(
-        value = "product", 
-        key = "#productId", 
+        value = "product",
+        key = "#productId",
         unless = "#result == null"
     )
     public ProductInfo findProductById(Long productId) {
         ProductEntity productEntity = productService.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
-        
+
+        // 조회수 증가 이벤트 발행
+        ProductEvent.Viewed productViewedEvent = ProductEvent.Viewed.of(productId);
+        eventPublisher.publishEvent(productViewedEvent);
+
         String brandName = brandService.find(productEntity.getBrandId())
                 .map(brand -> brand.getName())
                 .orElse("알 수 없는 브랜드");
-        
-        return ProductInfo.from(productEntity, brandName);
+
+        // 오늘 날짜 기준 랭킹 정보 조회
+        RankingCommand.ProductRank rankingCommand = new RankingCommand.ProductRank(LocalDate.now());
+        Long rank = rankingService.getProductRank(productId, rankingCommand);
+
+        return ProductInfo.from(productEntity, brandName, rank);
     }
 
     /**

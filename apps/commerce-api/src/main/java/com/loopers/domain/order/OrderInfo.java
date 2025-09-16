@@ -1,7 +1,4 @@
-package com.loopers.application.order;
-
-import com.loopers.domain.order.OrderEntity;
-import com.loopers.domain.order.OrderItemEntity;
+package com.loopers.domain.order;
 
 import java.util.List;
 

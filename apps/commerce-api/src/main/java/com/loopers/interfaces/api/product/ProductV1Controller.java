@@ -4,6 +4,9 @@ import com.loopers.application.product.ProductFacade;
 import com.loopers.domain.product.ProductCriteria;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +32,7 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        ProductCriteria criteria = switch (sort) {
+        ProductCriteria productCriteria = switch (sort) {
             case "price_asc" -> ProductCriteria.orderByPrice(true);
             case "price_desc" -> ProductCriteria.orderByPrice(false);
             case "likes" -> ProductCriteria.orderByLikeCount();
@@ -39,13 +42,13 @@ public class ProductV1Controller implements ProductV1ApiSpec {
 
         if (brandId != null) {
             // 기존 정렬 조건을 유지하면서 브랜드 ID 조건 추가
-            var existingCriteria = criteria.criteria();
-            var newCriteria = new java.util.ArrayList<>(existingCriteria);
-            newCriteria.add(new com.loopers.domain.product.ProductCriteria.BrandIdEquals(brandId));
-            criteria = new ProductCriteria(newCriteria);
+            var existingCriteria = productCriteria.criteria();
+            var newCriteria = new ArrayList<>(existingCriteria);
+            newCriteria.add(new ProductCriteria.BrandIdEquals(brandId));
+            productCriteria = new ProductCriteria(newCriteria);
         }
 
-        var productInfoPage = productFacade.findProducts(criteria, pageable);
+        var productInfoPage = productFacade.findProducts(productCriteria, pageable);
         ProductV1Dto.V1.GetProductListResponse response = ProductV1Dto.V1.GetProductListResponse.from(productInfoPage);
 
         return ApiResponse.success(response);
