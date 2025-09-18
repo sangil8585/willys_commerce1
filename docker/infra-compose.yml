@@ -104,6 +104,7 @@ volumes:
   mysql-8-data:
   redis_master_data:
   redis_readonly_data:
+  kafka-data:
   
 networks:
   default:
