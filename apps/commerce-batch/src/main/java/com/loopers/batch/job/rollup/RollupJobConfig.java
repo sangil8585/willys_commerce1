@@ -93,7 +93,8 @@ public class RollupJobConfig {
             FROM product_metrics
             WHERE date BETWEEN ? AND ?
             GROUP BY product_id
-            ORDER BY order_count DESC, like_count DESC, view_count DESC
+            ORDER BY (SUM(order_count)*7 + SUM(like_count)*2 + SUM(view_count)*1) DESC,
+                     order_count DESC, like_count DESC, view_count DESC
             LIMIT 100
         """;
 
@@ -113,7 +114,11 @@ public class RollupJobConfig {
     @Bean
     @StepScope
     public ItemProcessor<ProductRankWeeklyEntity, ProductRankWeeklyEntity> weeklyProcessor() {
-        return item -> item; // 이미 정렬 및 rank 부여됨
+        return item -> {
+            int score = item.getOrderCount() * 7 + item.getLikeCount() * 2 + item.getViewCount() * 1;
+            item.setScore(score);
+            return item;
+        };
     }
 
     @Bean
@@ -130,7 +135,8 @@ public class RollupJobConfig {
             FROM product_metrics
             WHERE date BETWEEN ? AND ?
             GROUP BY product_id
-            ORDER BY order_count DESC, like_count DESC, view_count DESC
+            ORDER BY (SUM(order_count)*7 + SUM(like_count)*2 + SUM(view_count)*1) DESC,
+                     order_count DESC, like_count DESC, view_count DESC
             LIMIT 100
         """;
 
@@ -150,7 +156,11 @@ public class RollupJobConfig {
     @Bean
     @StepScope
     public ItemProcessor<ProductRankMonthlyEntity, ProductRankMonthlyEntity> monthlyProcessor() {
-        return item -> item;
+        return item -> {
+            int score = item.getOrderCount() * 7 + item.getLikeCount() * 2 + item.getViewCount() * 1;
+            item.setScore(score);
+            return item;
+        };
     }
 }
 

@@ -39,6 +39,9 @@ public class ProductRankWeeklyEntity extends BaseEntity {
     @Column(name = "rank", nullable = false)
     private Integer rank;
 
+    @Transient
+    private Integer score;
+
     protected ProductRankWeeklyEntity(LocalDate asOfDate, Long productId, Integer orderCount, Integer likeCount, Integer viewCount, Integer rank) {
         this.asOfDate = asOfDate;
         this.productId = productId;
@@ -51,6 +54,10 @@ public class ProductRankWeeklyEntity extends BaseEntity {
     public static ProductRankWeeklyEntity of(LocalDate asOfDate, Long productId, Integer orderCount, Integer likeCount, Integer viewCount, Integer rank) {
         return new ProductRankWeeklyEntity(asOfDate, productId, orderCount, likeCount, viewCount, rank);
     }
+
+    public Integer getScore() { return score; }
+    public void setScore(Integer score) { this.score = score; }
+    public void setRank(Integer rank) { this.rank = rank; }
 }
 
 
