@@ -17,6 +17,7 @@ public interface RankingV1Spec {
     ApiResponse<List<RankingV1Dto.RankingResponse>> getRanking(
         @Parameter(description = "페이지 번호 (1부터 시작)") int page,
         @Parameter(description = "페이지 크기") int size,
-        @Parameter(description = "조회 날짜 - yyyyMMdd") LocalDate date
+        @Parameter(description = "조회 날짜 - yyyyMMdd") LocalDate date,
+        @Parameter(description = "기간(DAILY, WEEKLY, MONTHLY)") String period
     );
 }

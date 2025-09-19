@@ -20,17 +20,17 @@ public class RankingService {
         int size = Math.min(Math.max(command.size(), 5), 20);
         int offset = page * size;
 
-        List<Long> rankedProductIds = rankingRepository.getRankedProducts(offset, size, command.date());
+        List<Long> rankedProductIds = rankingRepository.getRankedProducts(offset, size, command.date(), command.period());
         
         List<RankingInfo> rankingInfos = createRankingInfos(rankedProductIds, offset);
 
-        Long totalCount = rankingRepository.getTotalCount(command.date());
+        Long totalCount = rankingRepository.getTotalCount(command.date(), command.period());
         
         return new PageImpl<>(rankingInfos, PageRequest.of(page, size), totalCount);
     }
 
     public Long getProductRank(Long productId, RankingCommand.ProductRank command) {
-        return rankingRepository.getProductRank(productId, command.date());
+        return rankingRepository.getProductRank(productId, command.date(), command.period());
     }
 
     private List<RankingInfo> createRankingInfos(List<Long> productIds, int offset) {

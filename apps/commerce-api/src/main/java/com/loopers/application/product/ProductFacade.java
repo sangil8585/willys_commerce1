@@ -7,6 +7,7 @@ import com.loopers.domain.product.ProductEntity;
 import com.loopers.domain.product.ProductEvent;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.ranking.RankingCommand;
+import com.loopers.domain.ranking.RankingPeriod;
 import com.loopers.domain.ranking.RankingService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -94,8 +95,8 @@ public class ProductFacade {
                 .map(brand -> brand.getName())
                 .orElse("알 수 없는 브랜드");
 
-        // 오늘 날짜 기준 랭킹 정보 조회
-        RankingCommand.ProductRank rankingCommand = new RankingCommand.ProductRank(LocalDate.now());
+        // 오늘 날짜 기준 랭킹 정보 조회 (DAILY)
+        RankingCommand.ProductRank rankingCommand = new RankingCommand.ProductRank(LocalDate.now(), RankingPeriod.DAILY);
         Long rank = rankingService.getProductRank(productId, rankingCommand);
 
         return ProductInfo.from(productEntity, brandName, rank);
