@@ -14,6 +14,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.support.ListItemReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaContext;
@@ -79,7 +80,7 @@ public class RollupJobConfig {
 
     @Bean
     @StepScope
-    public ListItemReader<ProductRankWeeklyEntity> weeklyReader(@org.springframework.beans.factory.annotation.Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
+    public ListItemReader<ProductRankWeeklyEntity> weeklyReader(@Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
         LocalDate asOfDate = LocalDate.parse(asOfDateStr, DATE_FMT);
         LocalDate start = asOfDate.minusDays(6);
 
@@ -117,7 +118,7 @@ public class RollupJobConfig {
 
     @Bean
     @StepScope
-    public ListItemReader<ProductRankMonthlyEntity> monthlyReader(@org.springframework.beans.factory.annotation.Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
+    public ListItemReader<ProductRankMonthlyEntity> monthlyReader(@Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
         LocalDate asOfDate = LocalDate.parse(asOfDateStr, DATE_FMT);
         LocalDate start = asOfDate.minusDays(29);
 
