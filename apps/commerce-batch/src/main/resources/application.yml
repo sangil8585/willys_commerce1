@@ -1,0 +1,84 @@
+server:
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 1m
+    max-connections: 8192
+    accept-count: 100
+    keep-alive-timeout: 60s
+  max-http-request-header-size: 8KB
+
+spring:
+  main:
+    web-application-type: none
+  application:
+    name: commerce-batch
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+      - redis.yml
+      - logging.yml
+      - monitoring.yml
+  batch:
+    job:
+      enabled: false # 스케줄러/수동 실행으로 구동, 자동 실행 비활성화
+    jdbc:
+      initialize-schema: always # 로컬/테스트에서는 배치 메타테이블 자동 생성
+  task:
+    scheduling:
+      pool:
+        size: 3
+      thread-name-prefix: "ranking-scheduler-"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local, test
+
+server:
+  port: 8086
+
+management:
+  server:
+    port: 8087
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  batch:
+    jdbc:
+      initialize-schema: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+  batch:
+    jdbc:
+      initialize-schema: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
+  batch:
+    jdbc:
+      initialize-schema: never

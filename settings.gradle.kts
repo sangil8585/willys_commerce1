@@ -4,6 +4,7 @@ include(
     ":apps:commerce-api",
     ":apps:pg-simulator",
     ":apps:commerce-collector",
+    ":apps:commerce-batch",
     ":modules:jpa",
     ":modules:redis",
     ":modules:resilience",
@@ -35,3 +36,5 @@ pluginManagement {
 }
 include(":modules:redis")
 findProject(":modules:redis")?.name = "redis"
+include("apps:commerce-batch")
+findProject(":apps:commerce-batch")?.name = "commerce-batch"

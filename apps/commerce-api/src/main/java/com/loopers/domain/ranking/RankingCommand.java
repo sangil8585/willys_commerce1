@@ -6,13 +6,15 @@ public class RankingCommand {
     public record Rankings(
             int size,
             int page,
-            LocalDate date
+            LocalDate date,
+            RankingPeriod period
     ) {
 
     }
 
     public record ProductRank(
-            LocalDate date
+            LocalDate date,
+            RankingPeriod period
     ) {
 
     }

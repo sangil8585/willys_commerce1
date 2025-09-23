@@ -26,7 +26,8 @@ public class RankingFacade {
         RankingCommand.Rankings command = new RankingCommand.Rankings(
                 search.size(),
                 search.page(),
-                search.date()
+                search.date(),
+                search.period()
         );
         
         Page<RankingInfo> rankingInfos = rankingService.getRankings(command);
